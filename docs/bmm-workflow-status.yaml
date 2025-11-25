@@ -1,0 +1,126 @@
+# Workflow Status Template
+
+# This tracks progress through BMM methodology Analysis, Planning, and Solutioning phases.
+# Implementation phase is tracked separately in sprint-status.yaml
+
+# STATUS DEFINITIONS:
+# ==================
+# Initial Status (before completion):
+#   - required: Must be completed to progress
+#   - optional: Can be completed but not required
+#   - recommended: Strongly suggested but not required
+#   - conditional: Required only if certain conditions met (e.g., if_has_ui)
+#
+# Completion Status:
+#   - {file-path}: File created/found (e.g., "docs/product-brief.md")
+#   - skipped: Optional/conditional workflow that was skipped
+
+generated: "2025-11-25T11:21:59+0530"
+project: "MOAR ATS"
+project_type: "platform"
+selected_track: "bmad-method"
+field_type: "greenfield"
+workflow_path: ".bmad/bmm/workflows/workflow-status/paths/method-greenfield.yaml"
+note: "Enterprise Method planned for Phase 2 (compliance, multi-region, advanced security)"
+workflow_status:
+  phase_0_discovery:
+    name: "Discovery (Optional)"
+    status: "in_progress"
+    workflows:
+      - id: "brainstorm-project"
+        status: "docs/bmm-brainstorming-session-2025-11-25.md"
+        agent: "analyst"
+        command: "brainstorm-project"
+        output: "Brainstorming session complete"
+        note: "User-selected during workflow-init"
+      
+      - id: "research"
+        status: "docs/research-gcc-ats-2025-11-25.md"
+        agent: "analyst"
+        command: "research"
+        output: "Research report documented and decisions captured in README + research dossier"
+        note: "Complete – see docs/research-gcc-ats-2025-11-25.md for details"
+      
+      - id: "product-brief"
+        status: "docs/product-brief-moar-ats.md"
+        agent: "analyst"
+        command: "product-brief"
+        output: "Product brief drafted based on brainstorming + research; see docs/product-brief-moar-ats.md"
+        note: "Complete – establishes MVP goals, scope, metrics, and rollout plan"
+  
+  phase_1_planning:
+    name: "Planning"
+    status: "in_progress"
+    workflows:
+      - id: "prd"
+        status: "docs/prd.md"
+        agent: "pm"
+        command: "prd"
+        output: "PRD complete with 68 functional requirements, NFRs, MVP scope, innovation patterns, and project-specific requirements"
+        note: "Product Requirements Document with FRs and NFRs - Complete"
+      
+      - id: "validate-prd"
+        status: "optional"
+        agent: "pm"
+        command: "validate-prd"
+        output: ""
+        note: "Quality check for PRD completeness"
+      
+      - id: "create-design"
+        status: "docs/ux-design-specification.md"
+        condition: "if_has_ui"
+        agent: "ux-designer"
+        command: "create-design"
+        output: "UX Design Specification complete with Trust Navy theme, Dense Dashboard layout, user journeys, component library, and accessibility strategy"
+        note: "Complete - Design direction selected (Direction 1), UI changes can be made during testing phase"
+  
+  phase_2_solutioning:
+    name: "Solutioning"
+    status: "in_progress"
+    workflows:
+      - id: "create-architecture"
+        status: "docs/architecture.md"
+        agent: "architect"
+        command: "create-architecture"
+        output: "Architecture complete with Next.js + PostgreSQL + Prisma stack, multi-tenant RLS, adaptive AI learning system, and comprehensive implementation patterns"
+        note: "Complete system design for greenfield projects - Must include multi-tenancy architecture"
+      
+      - id: "create-epics-and-stories"
+        status: "required"
+        agent: "pm"
+        command: "create-epics-and-stories"
+        output: ""
+        note: "Required: Break down PRD into implementable epics and stories with full context (PRD + UX + Architecture)"
+      
+      - id: "test-design"
+        status: "recommended"
+        agent: "tea"
+        command: "test-design"
+        output: ""
+        note: "Testability assessment before gate check - auto-detects system-level mode"
+      
+      - id: "validate-architecture"
+        status: "optional"
+        agent: "architect"
+        command: "validate-architecture"
+        output: ""
+        note: "Quality check for architecture completeness"
+      
+      - id: "implementation-readiness"
+        status: "docs/implementation-readiness-report-2025-11-25T23-21-56.md"
+        agent: "architect"
+        command: "implementation-readiness"
+        output: ""
+        note: "Validates PRD + UX + Architecture + Epics + Testability cohesion before implementation"
+  
+  phase_3_implementation:
+    name: "Implementation"
+    status: "in_progress"
+    workflows:
+      - id: "sprint-planning"
+        status: "docs/sprint-artifacts/sprint-status.yaml"
+        agent: "sm"
+        command: "sprint-planning"
+        output: "Sprint status tracking initialized with 13 epics and 52 stories"
+        note: "Creates sprint plan - subsequent work tracked there"
+

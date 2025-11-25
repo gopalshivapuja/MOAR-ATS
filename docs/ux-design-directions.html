@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOAR ATS - Design Direction Mockups</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1e3a5f;
+            --primary-dark: #152840;
+            --primary-light: #2d5a8a;
+            --secondary: #0d47a1;
+            --accent: #42a5f5;
+            --success: #28a745;
+            --error: #dc3545;
+            --neutral-50: #f9fafb;
+            --neutral-100: #f3f4f6;
+            --neutral-200: #e5e7eb;
+            --neutral-300: #d1d5db;
+            --neutral-500: #6b7280;
+            --neutral-700: #374151;
+            --neutral-900: #111827;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--neutral-50);
+            color: var(--neutral-900);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--neutral-500);
+            font-size: 0.95rem;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .nav-btn:disabled {
+            background: var(--neutral-300);
+            cursor: not-allowed;
+        }
+
+        .direction-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--accent);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-left: 1rem;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .direction-view {
+            display: none;
+        }
+
+        .direction-view.active {
+            display: block;
+        }
+
+        .direction-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .direction-header h2 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .direction-meta {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .meta-item h4 {
+            font-size: 0.85rem;
+            color: var(--neutral-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .meta-item p {
+            color: var(--neutral-700);
+            font-size: 0.95rem;
+        }
+
+        .mockup-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .mockup-title {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--neutral-200);
+        }
+
+        /* Direction 1: Dense Dashboard */
+        .direction-1 .app-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr 350px;
+            gap: 1.5rem;
+            min-height: 600px;
+        }
+
+        .sidebar {
+            background: var(--neutral-100);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .sidebar h3 {
+            font-size: 0.9rem;
+            color: var(--neutral-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        .nav-item {
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background: var(--neutral-200);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .main-content {
+            background: white;
+            border: 1px solid var(--neutral-200);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .pipeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .pipeline-header h3 {
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .kanban-column {
+            background: var(--neutral-50);
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 400px;
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--neutral-200);
+        }
+
+        .column-header h4 {
+            font-size: 0.9rem;
+            color: var(--neutral-700);
+            font-weight: 500;
+        }
+
+        .column-count {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        .candidate-card {
+            background: white;
+            border: 1px solid var(--neutral-200);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .candidate-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .candidate-name {
+            font-weight: 500;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .candidate-role {
+            font-size: 0.85rem;
+            color: var(--neutral-500);
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-score {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .ai-panel {
+            background: var(--neutral-100);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .ai-panel h3 {
+            font-size: 0.9rem;
+            color: var(--neutral-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        .ai-insight {
+            background: white;
+            border-left: 3px solid var(--accent);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .ai-insight h4 {
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-insight p {
+            font-size: 0.85rem;
+            color: var(--neutral-700);
+            line-height: 1.5;
+        }
+
+        /* Direction 2: Spacious Explorer */
+        .direction-2 .app-layout {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 2rem;
+            min-height: 600px;
+        }
+
+        .direction-2 .main-content {
+            padding: 2rem;
+        }
+
+        .direction-2 .kanban-board {
+            gap: 1.5rem;
+        }
+
+        .direction-2 .candidate-card {
+            padding: 1.5rem;
+        }
+
+        /* Direction 3: Card Gallery */
+        .direction-3 .app-layout {
+            display: block;
+        }
+
+        .direction-3 .main-content {
+            padding: 2rem;
+        }
+
+        .direction-3 .candidate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .direction-3 .candidate-card {
+            margin-bottom: 0;
+        }
+
+        /* Responsive preview toggle */
+        .responsive-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            padding: 0.5rem 1rem;
+            background: var(--neutral-200);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .thumbnail {
+            background: white;
+            border: 2px solid var(--neutral-200);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .thumbnail:hover {
+            border-color: var(--primary);
+        }
+
+        .thumbnail.active {
+            border-color: var(--primary);
+            background: var(--neutral-50);
+        }
+
+        .thumbnail h4 {
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 MOAR ATS Design Direction Mockups <span class="direction-indicator" id="direction-indicator">Direction 1 of 6</span></h1>
+        <p>Explore different layout approaches for the recruiter pipeline view and candidate portal</p>
+        <div class="nav-controls">
+            <button class="nav-btn" id="prev-btn" onclick="changeDirection(-1)">← Previous</button>
+            <button class="nav-btn" id="next-btn" onclick="changeDirection(1)">Next →</button>
+            <div class="responsive-toggle">
+                <button class="toggle-btn active" onclick="setViewport('desktop')">Desktop</button>
+                <button class="toggle-btn" onclick="setViewport('tablet')">Tablet</button>
+                <button class="toggle-btn" onclick="setViewport('mobile')">Mobile</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Direction 1: Dense Dashboard -->
+        <div class="direction-view active" id="direction-1" data-direction="1">
+            <div class="direction-header">
+                <h2>Direction 1: Dense Dashboard</h2>
+                <p style="color: var(--neutral-500); margin-top: 0.5rem;">Information-rich layout optimized for power users who need lots of context at once</p>
+                <div class="direction-meta">
+                    <div class="meta-item">
+                        <h4>Layout</h4>
+                        <p>3-column: Sidebar + Main + AI Panel</p>
+                    </div>
+                    <div class="meta-item">
+                        <h4>Density</h4>
+                        <p>High - Maximum information visible</p>
+                    </div>
+                    <div class="meta-item">
+                        <h4>Navigation</h4>
+                        <p>Persistent sidebar navigation</p>
+                    </div>
+                    <div class="meta-item">
+                        <h4>Best For</h4>
+                        <p>Power users, experienced recruiters, data-heavy workflows</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mockup-container">
+                <h3 class="mockup-title">Recruiter Pipeline View</h3>
+                <div class="app-layout">
+                    <div class="sidebar">
+                        <h3>Navigation</h3>
+                        <div class="nav-item active">Pipeline</div>
+                        <div class="nav-item">Jobs</div>
+                        <div class="nav-item">Candidates</div>
+                        <div class="nav-item">Analytics</div>
+                        <div class="nav-item">Settings</div>
+                    </div>
+                    <div class="main-content">
+                        <div class="pipeline-header">
+                            <h3>Software Engineer Pipeline</h3>
+                            <button class="nav-btn" style="font-size: 0.85rem;">+ Add Candidate</button>
+                        </div>
+                        <div class="kanban-board">
+                            <div class="kanban-column">
+                                <div class="column-header">
+                                    <h4>Applied</h4>
+                                    <span class="column-count">12</span>
+                                </div>
+                                <div class="candidate-card">
+                                    <div class="candidate-name">Sarah Chen</div>
+                                    <div class="candidate-role">Senior Engineer</div>
+                                    <div class="ai-score">AI: 92</div>
+                                </div>
+                                <div class="candidate-card">
+                                    <div class="candidate-name">Michael Park</div>
+                                    <div class="candidate-role">Full Stack Dev</div>
+                                    <div class="ai-score">AI: 88</div>
+                                </div>
+                            </div>
+                            <div class="kanban-column">
+                                <div class="column-header">
+                                    <h4>Screening</h4>
+                                    <span class="column-count">8</span>
+                                </div>
+                                <div class="candidate-card">
+                                    <div class="candidate-name">Priya Sharma</div>
+                                    <div class="candidate-role">Backend Engineer</div>
+                                    <div class="ai-score">AI: 95</div>
+                                </div>
+                            </div>
+                            <div class="kanban-column">
+                                <div class="column-header">
+                                    <h4>Interview</h4>
+                                    <span class="column-count">5</span>
+                                </div>
+                                <div class="candidate-card">
+                                    <div class="candidate-name">David Kim</div>
+                                    <div class="candidate-role">Frontend Lead</div>
+                                    <div class="ai-score">AI: 90</div>
+                                </div>
+                            </div>
+                            <div class="kanban-column">
+                                <div class="column-header">
+                                    <h4>Offer</h4>
+                                    <span class="column-count">2</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-panel">
+                        <h3>AI Co-pilot</h3>
+                        <div class="ai-insight">
+                            <h4>Top Match: Sarah Chen</h4>
+                            <p>Strong match: 8+ years Python, relevant domain experience, excellent communication skills.</p>
+                        </div>
+                        <div class="ai-insight">
+                            <h4>Suggested Outreach</h4>
+                            <p>"Hi Sarah, your background in fintech aligns perfectly with our role. Would you be interested in a conversation?"</p>
+                        </div>
+                        <button class="nav-btn" style="width: 100%; margin-top: 1rem; font-size: 0.85rem;">Override AI Score</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Direction 2: Spacious Explorer -->
+        <div class="direction-view" id="direction-2" data-direction="2">
+            <div class="direction-header">
+                <h2>Direction 2: Spacious Explorer</h2>
+                <p style="color: var(--neutral-500); margin-top: 0.5rem;">Breathing room with focus on clarity and ease of use</p>
+                <div class="direction-meta">
+                    <div class="meta-item">
+                        <h4>Layout</h4>
+                        <p>2-column: Sidebar + Main (AI panel toggleable)</p>
+                    </div>
+                    <div class="meta-item">
+                        <h4>Density</h4>
+                        <p>Low - Plenty of white space</p>
+                    </div>
+                    <div class="meta-item">
+                        <h4>Navigation</h4>
+                        <p>Collapsible sidebar</p>
+                    </div>
+                    <div class="meta-item">
+                        <h4>Best For</h4>
+                        <p>First-time users, clarity-focused workflows, less overwhelming</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mockup-container">
+                <h3 class="mockup-title">Recruiter Pipeline View</h3>
+                <div class="app-layout">
+                    <div class="sidebar">
+                        <h3>Navigation</h3>
+                        <div class="nav-item active">Pipeline</div>
+                        <div class="nav-item">Jobs</div>
+                        <div class="nav-item">Candidates</div>
+                        <div class="nav-item">Analytics</div>
+                    </div>
+                    <div class="main-content">
+                        <div class="pipeline-header">
+                            <h3>Software Engineer Pipeline</h3>
+                            <button class="nav-btn" style="font-size: 0.85rem;">Toggle AI Panel</button>
+                        </div>
+                        <div class="kanban-board">
+                            <div class="kanban-column">
+                                <div class="column-header">
+                                    <h4>Applied</h4>
+                                    <span class="column-count">12</span>
+                                </div>
+                                <div class="candidate-card">
+                                    <div class="candidate-name">Sarah Chen</div>
+                                    <div class="candidate-role">Senior Engineer</div>
+                                    <div class="ai-score" style="margin-top: 0.5rem;">AI Score: 92/100</div>
+                                </div>
+                            </div>
+                            <div class="kanban-column">
+                                <div class="column-header">
+                                    <h4>Screening</h4>
+                                    <span class="column-count">8</span>
+                                </div>
+                            </div>
+                            <div class="kanban-column">
+                                <div class="column-header">
+                                    <h4>Interview</h4>
+                                    <span class="column-count">5</span>
+                                </div>
+                            </div>
+                            <div class="kanban-column">
+                                <div class="column-header">
+                                    <h4>Offer</h4>
+                                    <span class="column-count">2</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Direction 3: Card Gallery -->
+        <div class="direction-view" id="direction-3" data-direction="3">
+            <div class="direction-header">
+                <h2>Direction 3: Card Gallery</h2>
+                <p style="color: var(--neutral-500); margin-top: 0.5rem;">Grid-based candidate cards with rich detail views</p>
+                <div class="direction-meta">
+                    <div class="meta-item">
+                        <h4>Layout</h4>
+                        <p>Full-width grid, detail panel on selection</p>
+                    </div>
+                    <div class="meta-item">
+                        <h4>Density</h4>
+                        <p>Balanced - Cards with visual hierarchy</p>
+                    </div>
+                    <div class="meta-item">
+                        <h4>Navigation</h4>
+                        <p>Top navigation bar</p>
+                    </div>
+                    <div class="meta-item">
+                        <h4>Best For</h4>
+                        <p>Visual browsing, candidate comparison, portfolio-style review</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mockup-container">
+                <h3 class="mockup-title">Recruiter Candidate View</h3>
+                <div class="app-layout">
+                    <div class="main-content">
+                        <div class="pipeline-header">
+                            <h3>All Candidates - Software Engineer</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="nav-btn" style="font-size: 0.85rem;">Filter</button>
+                                <button class="nav-btn" style="font-size: 0.85rem;">Sort</button>
+                            </div>
+                        </div>
+                        <div class="candidate-grid">
+                            <div class="candidate-card">
+                                <div class="candidate-name">Sarah Chen</div>
+                                <div class="candidate-role">Senior Engineer</div>
+                                <div class="ai-score" style="margin-top: 0.75rem;">AI: 92</div>
+                                <p style="font-size: 0.85rem; color: var(--neutral-500); margin-top: 0.5rem;">8+ years Python, Fintech experience</p>
+                            </div>
+                            <div class="candidate-card">
+                                <div class="candidate-name">Michael Park</div>
+                                <div class="candidate-role">Full Stack Dev</div>
+                                <div class="ai-score" style="margin-top: 0.75rem;">AI: 88</div>
+                                <p style="font-size: 0.85rem; color: var(--neutral-500); margin-top: 0.5rem;">React, Node.js, 6 years</p>
+                            </div>
+                            <div class="candidate-card">
+                                <div class="candidate-name">Priya Sharma</div>
+                                <div class="candidate-role">Backend Engineer</div>
+                                <div class="ai-score" style="margin-top: 0.75rem;">AI: 95</div>
+                                <p style="font-size: 0.85rem; color: var(--neutral-500); margin-top: 0.5rem;">Microservices, AWS, 7 years</p>
+                            </div>
+                            <div class="candidate-card">
+                                <div class="candidate-name">David Kim</div>
+                                <div class="candidate-role">Frontend Lead</div>
+                                <div class="ai-score" style="margin-top: 0.75rem;">AI: 90</div>
+                                <p style="font-size: 0.85rem; color: var(--neutral-500); margin-top: 0.5rem;">React, TypeScript, Team lead</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add more directions as needed -->
+        <div class="thumbnail-grid" id="thumbnail-grid">
+            <div class="thumbnail active" onclick="showDirection(1)">
+                <div style="background: var(--neutral-200); height: 120px; border-radius: 6px; margin-bottom: 0.5rem;"></div>
+                <h4>Dense Dashboard</h4>
+            </div>
+            <div class="thumbnail" onclick="showDirection(2)">
+                <div style="background: var(--neutral-200); height: 120px; border-radius: 6px; margin-bottom: 0.5rem;"></div>
+                <h4>Spacious Explorer</h4>
+            </div>
+            <div class="thumbnail" onclick="showDirection(3)">
+                <div style="background: var(--neutral-200); height: 120px; border-radius: 6px; margin-bottom: 0.5rem;"></div>
+                <h4>Card Gallery</h4>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDirection = 1;
+        const totalDirections = 3;
+
+        function showDirection(num) {
+            document.querySelectorAll('.direction-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.querySelectorAll('.thumbnail').forEach(thumb => {
+                thumb.classList.remove('active');
+            });
+            
+            const direction = document.getElementById(`direction-${num}`);
+            if (direction) {
+                direction.classList.add('active');
+                currentDirection = num;
+                updateIndicator();
+            }
+            
+            const thumbnail = event.currentTarget;
+            thumbnail.classList.add('active');
+        }
+
+        function changeDirection(delta) {
+            const newDirection = currentDirection + delta;
+            if (newDirection >= 1 && newDirection <= totalDirections) {
+                showDirection(newDirection);
+            }
+            updateNavButtons();
+        }
+
+        function updateIndicator() {
+            document.getElementById('direction-indicator').textContent = `Direction ${currentDirection} of ${totalDirections}`;
+        }
+
+        function updateNavButtons() {
+            document.getElementById('prev-btn').disabled = currentDirection === 1;
+            document.getElementById('next-btn').disabled = currentDirection === totalDirections;
+        }
+
+        function setViewport(size) {
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            // Viewport changes would be implemented here
+        }
+
+        updateNavButtons();
+    </script>
+</body>
+</html>
+
