@@ -1,0 +1,137 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Database Schema and Prisma Setup</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-26</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-2-database-schema-and-prisma-setup.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to set up PostgreSQL database with Prisma ORM and define core multi-tenant schema</iWant>
+    <soThat>all subsequent stories can build on a solid data foundation with tenant isolation</soThat>
+    <tasks>
+      <task id="1" ac="1.2.1">Initialize Prisma and configure PostgreSQL connection</task>
+      <task id="2" ac="1.2.1,1.2.2">Define Tenant model</task>
+      <task id="3" ac="1.2.1,1.2.2">Define User model</task>
+      <task id="4" ac="1.2.1,1.2.2">Define JobPosting model</task>
+      <task id="5" ac="1.2.1,1.2.2">Define Candidate model</task>
+      <task id="6" ac="1.2.1,1.2.2">Define Application model</task>
+      <task id="7" ac="1.2.3">Create initial migration</task>
+      <task id="8" ac="1.2.3">Create seed script template</task>
+      <task id="9" ac="All">Verify Prisma setup</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <ac id="1.2.1">Prisma is configured with PostgreSQL 16.x connection, multi-tenant schema with `tenant_id` on all tables, core tables defined (`tenants`, `users`, `job_postings`, `candidates`, `applications`), RLS policies for tenant isolation, timestamps on all tables, and proper relationships.</ac>
+    <ac id="1.2.2">Schema includes all required tables with correct fields: `tenants` (id, name, slug, settings JSON), `users` (id, tenant_id, email, name, role, password_hash), `job_postings` (id, tenant_id, title, description, requirements JSON, status), `candidates` (id, tenant_id, email, name, resume_url, linkedin_id), `applications` (id, tenant_id, candidate_id, job_id, status, ai_score).</ac>
+    <ac id="1.2.3">Prisma migrations are set up: initial migration created, migration commands work (`prisma migrate dev`), seed script template created.</ac>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/sprint-artifacts/tech-spec-epic-1.md" title="Epic 1 Technical Specification" section="Detailed Design - Data Models and Contracts">
+        Defines complete Prisma schema with all models (Tenant, User, JobPosting, Candidate, Application), relationships, field types, indexes, and RLS policy requirements. Includes TypeScript types and database schema structure.
+      </doc>
+      <doc path="docs/epics.md" title="Epics and Stories" section="Story 1.2: Database Schema and Prisma Setup">
+        User story definition with acceptance criteria, technical notes, and prerequisites. Specifies Prisma 5.x, PostgreSQL 16.x, multi-tenant schema with tenant_id, RLS policies, UUID v4 for IDs, JSON fields for flexible data, and indexes on tenant_id columns.
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture" section="Data Architecture">
+        Specifies PostgreSQL 16.x with Prisma 5.x ORM, multi-tenant schema with tenant_id on all tables, row-level security (RLS) policies for tenant isolation, Prisma middleware for automatic tenant filtering, and database schema structure.
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture" section="Database Schema (Prisma)">
+        Defines core tables: tenants, users, job_postings, candidates, applications, interviews, offers, audit_logs, consent_records, behavior_events, recruiter_preferences. Specifies multi-tenancy pattern with tenant_id column on every table.
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture" section="Implementation Patterns">
+        Naming conventions: Database tables (plural, snake_case), database columns (snake_case), Prisma models (singular, PascalCase). Structure patterns: Prisma schema location (prisma/schema.prisma), migrations location (prisma/migrations/), seed script location (prisma/seed.ts).
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture" section="Decision Summary">
+        Technology stack decisions: PostgreSQL 16.x (LTS), Prisma 5.x ORM, multi-tenancy via RLS + tenant_id. All versions verified on 2025-11-25.
+      </doc>
+      <doc path="docs/sprint-artifacts/1-1-project-setup-and-initial-configuration.md" title="Story 1.1 Completion Notes" section="Dev Agent Record">
+        Prisma 7.0.1 is already installed (from Story 1.1 completion notes). Use this version - it's backward compatible with 5.x API specified in story requirements. Project structure exists, including prisma/ directory. .env.example already documents DATABASE_URL format.
+      </doc>
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Data Management">
+        Security requirements: Encryption at rest and in transit for candidate PII, secure authentication, API rate limiting, immutable audit logs. Multi-tenant data isolation with row-level security.
+      </doc>
+    </docs>
+    <code>
+      <!-- Existing code from Story 1.1 -->
+      <file path="moar-ats/prisma/" description="Prisma directory exists from Story 1.1, ready for schema.prisma file" />
+      <file path="moar-ats/.env.example" description="Environment variable template with DATABASE_URL format documented" />
+      <file path="moar-ats/package.json" description="Prisma 7.0.1 and @prisma/client 7.0.1 already installed" />
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="prisma" version="7.0.1">Prisma ORM and CLI (already installed, backward compatible with 5.x API)</package>
+        <package name="@prisma/client" version="7.0.1">Prisma client for TypeScript (already installed)</package>
+        <package name="ts-node" version="latest">TypeScript execution for seed script (dev dependency)</package>
+        <package name="@types/node" version="latest">Node.js TypeScript types (dev dependency, may already be installed)</package>
+      </ecosystem>
+      <infrastructure name="database">
+        <service name="PostgreSQL" version="16.x">Multi-tenant database with RLS support (local or managed instance)</service>
+      </infrastructure>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="database">PostgreSQL 16.x (LTS) - must use PostgreSQL 16.x for RLS support</constraint>
+    <constraint type="orm">Prisma 7.0.1 (already installed) - backward compatible with 5.x API, use existing version</constraint>
+    <constraint type="schema">Multi-tenant schema - all tables must include `tenant_id` column for tenant isolation</constraint>
+    <constraint type="security">Row-level security (RLS) - RLS policies must be enabled on all tables to prevent cross-tenant data access</constraint>
+    <constraint type="naming">Database tables: Plural, snake_case (e.g., `tenants`, `job_postings`, `candidates`). Prisma models: Singular, PascalCase (e.g., `Tenant`, `JobPosting`, `Candidate`). Database columns: snake_case (e.g., `tenant_id`, `created_at`, `updated_at`).</constraint>
+    <constraint type="ids">UUID v4 for all primary keys - use `@default(uuid())` in Prisma schema</constraint>
+    <constraint type="timestamps">All tables must have `created_at` and `updated_at` timestamps - use `@default(now())` and `@updatedAt` with `@map` directives</constraint>
+    <constraint type="relationships">All relationships must include `onDelete: Cascade` to maintain referential integrity</constraint>
+    <constraint type="indexes">Indexes required on all `tenant_id` columns for query performance - use `@@index([tenantId])`</constraint>
+    <constraint type="json">JSON fields for flexible data: `settings` (Tenant), `requirements` (JobPosting) - use `Json` type in Prisma</constraint>
+    <constraint type="mapping">Use `@map` directive to map between TypeScript camelCase and database snake_case naming</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="Prisma Client" path="moar-ats/src/lib/db/prisma.ts" description="Prisma client instance (to be created in Story 1.4)">
+      <note>Prisma client will be generated from schema.prisma. Database utilities will be created in Story 1.4.</note>
+    </interface>
+    <interface name="Database Connection" path="moar-ats/.env.local" description="DATABASE_URL environment variable">
+      <note>Connection string format: `postgresql://user:password@localhost:5432/moar_ats`. Reference .env.example for format.</note>
+    </interface>
+    <interface name="Prisma Schema" path="moar-ats/prisma/schema.prisma" description="Database schema definition">
+      <note>Schema file defines all models, relationships, indexes, and RLS policy requirements.</note>
+    </interface>
+    <interface name="Migrations" path="moar-ats/prisma/migrations/" description="Database migration files">
+      <note>Migrations are created by Prisma when running `prisma migrate dev`. Initial migration will create all tables.</note>
+    </interface>
+    <interface name="Seed Script" path="moar-ats/prisma/seed.ts" description="Database seed data script">
+      <note>Seed script template for development data. Configured in package.json with ts-node execution.</note>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing for Story 1.2 focuses on verifying Prisma schema syntax, migration creation, and database structure. Unit tests verify schema syntax and relationships. Integration tests verify migrations work and tables are created correctly. Manual verification includes checking database connection, reviewing generated SQL, and testing seed script.
+    </standards>
+    <locations>
+      Tests will be located in `__tests__/` directory (to be created in Story 1.6). For Story 1.2, manual verification and Prisma CLI commands are sufficient.
+    </locations>
+    <ideas>
+      <test ac="1.2.1">Verify Prisma schema syntax: Run `npx prisma format` and verify no syntax errors. Check all models have tenant_id field. Verify relationships are properly defined with @relation directives.</test>
+      <test ac="1.2.1">Verify PostgreSQL connection: Check DATABASE_URL in .env.local matches database instance. Test connection with `npx prisma db pull` (if database exists) or verify connection string format.</test>
+      <test ac="1.2.1">Verify RLS policies: Review generated migration SQL to ensure RLS is enabled on all tables. Check policies check tenant_id matches authenticated user's tenant.</test>
+      <test ac="1.2.2">Verify Tenant model: Check fields (id, name, slug, settings, createdAt, updatedAt). Verify @@map("tenants") directive. Verify relationships to users, jobPostings, candidates, applications.</test>
+      <test ac="1.2.2">Verify User model: Check fields (id, tenantId, email, name, role, passwordHash, createdAt, updatedAt). Verify @@unique([tenantId, email]) for tenant-scoped email uniqueness. Verify @@index([tenantId]) for performance. Verify relationship to tenant.</test>
+      <test ac="1.2.2">Verify JobPosting model: Check fields (id, tenantId, title, description, requirements, status, createdAt, updatedAt). Verify @@index([tenantId]) and @@index([tenantId, status]). Verify relationships to tenant and applications.</test>
+      <test ac="1.2.2">Verify Candidate model: Check fields (id, tenantId, email, name, resumeUrl, linkedinId, createdAt, updatedAt). Verify @@index([tenantId]) and @@index([tenantId, email]). Verify relationships to tenant and applications.</test>
+      <test ac="1.2.2">Verify Application model: Check fields (id, tenantId, candidateId, jobId, status, aiScore, createdAt, updatedAt). Verify @@unique([tenantId, candidateId, jobId]) to prevent duplicates. Verify @@index([tenantId]) and @@index([tenantId, status]). Verify relationships to tenant, candidate, and job.</test>
+      <test ac="1.2.3">Verify initial migration: Run `npx prisma migrate dev --name init` and verify migration files created in prisma/migrations/. Review generated SQL to ensure all tables, columns, indexes, and foreign keys are correct.</test>
+      <test ac="1.2.3">Verify migration commands: Test `npx prisma migrate dev` works. Test `npx prisma migrate reset` (if needed for rollback). Verify migration history is tracked.</test>
+      <test ac="1.2.3">Verify seed script: Check prisma/seed.ts file exists with basic structure. Verify package.json has seed script configured: `"prisma": { "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts" }`. Test `npx prisma db seed` (optional, requires database connection).</test>
+      <test ac="All">Verify Prisma client generation: Run `npx prisma generate` and verify no errors. Check @prisma/client types are available. Verify TypeScript types match schema models.</test>
+      <test ac="All">Verify database structure: If database is available, run `npx prisma db pull` to verify schema matches. Check all tables exist with correct columns. Verify indexes are created on tenant_id columns.</test>
+    </ideas>
+  </tests>
+</story-context>
+
