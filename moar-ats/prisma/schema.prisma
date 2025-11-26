@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,95 +6,85 @@ datasource db {
   provider = "postgresql"
 }
 
-// Tenant model - root of multi-tenancy
 model Tenant {
-  id        String   @id @default(uuid())
-  name      String
-  slug      String   @unique
-  settings  Json? // Tenant-specific settings (integrations, workflows, AI policies)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  users        User[]
-  jobPostings  JobPosting[]
-  candidates   Candidate[]
+  id           String        @id @default(uuid())
+  name         String
+  slug         String        @unique
+  settings     Json?
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
   applications Application[]
+  candidates   Candidate[]
+  jobPostings  JobPosting[]
+  users        User[]
 
   @@map("tenants")
 }
 
-// User model - all users belong to a tenant
 model User {
-  id           String   @id @default(uuid())
-  tenantId     String   @map("tenant_id")
+  id           String    @id @default(uuid())
+  tenantId     String    @map("tenant_id")
   email        String
   name         String
-  role         String // recruiter, hiring_manager, ta_leader, compliance_partner, system_admin
-  passwordHash String   @map("password_hash")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  accounts  Account[]
-  sessions  Session[]
+  role         String
+  passwordHash String    @map("password_hash")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  accounts     Account[]
+  sessions     Session[]
+  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, email])
   @@index([tenantId])
   @@map("users")
 }
 
-// Job Posting model - jobs belong to tenants
 model JobPosting {
-  id           String   @id @default(uuid())
-  tenantId     String   @map("tenant_id")
+  id           String        @id @default(uuid())
+  tenantId     String        @map("tenant_id")
   title        String
   description  String
-  requirements Json // Array of requirement strings stored as JSON
-  status       String // draft, published, archived
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  requirements Json
+  status       String
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
   applications Application[]
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([tenantId, status])
   @@map("job_postings")
 }
 
-// Candidate model - candidates belong to tenants
 model Candidate {
-  id         String   @id @default(uuid())
-  tenantId   String   @map("tenant_id")
-  email      String
-  name       String
-  resumeUrl  String?  @map("resume_url")
-  linkedinId String?  @map("linkedin_id")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id           String        @id @default(uuid())
+  tenantId     String        @map("tenant_id")
+  email        String
+  name         String
+  resumeUrl    String?       @map("resume_url")
+  linkedinId   String?       @map("linkedin_id")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
   applications Application[]
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([tenantId, email])
   @@map("candidates")
 }
 
-// Application model - links candidates to jobs
 model Application {
-  id          String   @id @default(uuid())
-  tenantId    String   @map("tenant_id")
-  candidateId String   @map("candidate_id")
-  jobId       String   @map("job_id")
-  status      String // applied, screening, interview, offer, hired
-  aiScore     Float?   @map("ai_score")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  candidate Candidate  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  job       JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  id          String     @id @default(uuid())
+  tenantId    String     @map("tenant_id")
+  candidateId String     @map("candidate_id")
+  jobId       String     @map("job_id")
+  status      String
+  aiScore     Float?     @map("ai_score")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  candidate   Candidate  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job         JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, candidateId, jobId])
   @@index([tenantId])
@@ -105,22 +92,20 @@ model Application {
   @@map("applications")
 }
 
-// NextAuth adapter models
 model Account {
   id                String  @id @default(uuid())
   userId            String  @map("user_id")
   type              String
   provider          String
   providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
