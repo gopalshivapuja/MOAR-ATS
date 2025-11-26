@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: moar-ats-postgres
+    environment:
+      POSTGRES_USER: moar_ats
+      POSTGRES_PASSWORD: dev_password_change_in_production
+      POSTGRES_DB: moar_ats
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moar_ats"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: moar-ats-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+

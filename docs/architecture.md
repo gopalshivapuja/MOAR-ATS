@@ -811,12 +811,13 @@ ANTHROPIC_API_KEY="your-anthropic-key"
 **Decision:** Custom adaptive learning system with behavior observation, pattern extraction, and explainability  
 **Consequences:** Unique differentiator, requires custom implementation, enables AI that gets better over time
 
-### ADR-005: Vercel for MVP, AWS for Phase 2
+### ADR-005: Vercel/Railway for MVP, AWS/OCI for Phase 2
 
 **Status:** Accepted  
 **Context:** Need fast MVP iteration, then enterprise-grade infrastructure  
-**Decision:** Start with Vercel, migrate to AWS with GitOps (Terraform + ArgoCD) for Phase 2  
-**Consequences:** Fast MVP development, easy migration path, GitOps-ready for enterprise
+**Decision:** Start with Vercel or Railway for MVP, migrate to AWS or OCI with GitOps (Terraform + ArgoCD) for Phase 2  
+**Consequences:** Fast MVP development, minimal infrastructure complexity, easy migration path when enterprise features needed  
+**Reference:** See `docs/DEPLOYMENT-STRATEGY.md` for detailed deployment plan and migration strategy
 
 ---
 

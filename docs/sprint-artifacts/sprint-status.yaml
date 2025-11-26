@@ -41,10 +41,10 @@ story_location: docs/sprint-artifacts
 
 development_status:
   # Epic 1: Foundation & Infrastructure
-  epic-1: backlog
-  1-1-project-setup-and-initial-configuration: backlog
-  1-2-database-schema-and-prisma-setup: backlog
-  1-3-authentication-foundation-with-nextauth-js: backlog
+  epic-1: contexted
+  1-1-project-setup-and-initial-configuration: done
+  1-2-database-schema-and-prisma-setup: done
+  1-3-authentication-foundation-with-nextauth-js: done
   1-4-multi-tenant-middleware-and-row-level-security: backlog
   1-5-core-ui-component-library-setup: backlog
   1-6-development-environment-and-deployment-pipeline: backlog

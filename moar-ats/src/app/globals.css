@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  
+  /* Trust Navy Color Palette */
+  --primary: #1e3a5f;        /* Deep Navy */
+  --primary-dark: #152840;   /* Primary Dark */
+  --primary-light: #2d5a8a; /* Primary Light */
+  --secondary: #0d47a1;      /* Rich Blue */
+  --accent: #42a5f5;         /* Bright Blue */
+  --success: #28a745;
+  --success-light: #d4edda;
+  --warning: #ffc107;
+  --error: #dc3545;
+  --error-light: #f8d7da;
+  
+  /* Neutral Grayscale */
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-500: #6b7280;
+  --neutral-700: #374151;
+  --neutral-900: #111827;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  /* Trust Navy Theme Colors */
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-success-light: var(--success-light);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-error-light: var(--error-light);
+  
+  /* Neutral Colors */
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-900: var(--neutral-900);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}

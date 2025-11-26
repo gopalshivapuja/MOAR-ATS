@@ -1,0 +1,59 @@
+name: Sync to Deployment Repository
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'moar-ats/**'
+      - '.github/workflows/sync-deployment.yml'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+      
+      - name: Clone deployment repository
+        env:
+          DEPLOYMENT_TOKEN: ${{ secrets.DEPLOYMENT_REPO_TOKEN }}
+        run: |
+          git clone https://${DEPLOYMENT_TOKEN}@github.com/gopalshivapuja/moar-ats-app.git deployment-repo
+      
+      - name: Sync moar-ats folder
+        run: |
+          # Copy moar-ats contents to deployment repo
+          cp -r moar-ats/* deployment-repo/
+          
+          # Copy essential files
+          cp moar-ats/.env.example deployment-repo/ 2>/dev/null || true
+          cp moar-ats/.gitignore deployment-repo/ 2>/dev/null || true
+      
+      - name: Commit and push to deployment repo
+        run: |
+          cd deployment-repo
+          git add .
+          
+          # Check if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to sync"
+          else
+            git commit -m "chore: Auto-sync from main repo - $(date +'%Y-%m-%d %H:%M:%S')"
+            git push origin main
+          fi
+        env:
+          DEPLOYMENT_TOKEN: ${{ secrets.DEPLOYMENT_REPO_TOKEN }}
+

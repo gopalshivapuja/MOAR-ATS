@@ -1,0 +1,175 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>3</storyId>
+    <title>Authentication Foundation with NextAuth.js</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-26</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-3-authentication-foundation-with-nextauth-js.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to set up NextAuth.js v5 (Auth.js) with email/password authentication</iWant>
+    <soThat>users can securely log in and sessions are managed properly</soThat>
+    <tasks>
+      <task id="1" ac="1.3.1">Install NextAuth.js v5 and dependencies</task>
+      <task id="2" ac="1.3.1">Configure NextAuth.js with Prisma adapter</task>
+      <task id="3" ac="1.3.1">Create NextAuth API route handler</task>
+      <task id="4" ac="1.3.1,1.3.3">Configure environment variables</task>
+      <task id="5" ac="1.3.3">Implement password validation</task>
+      <task id="6" ac="1.3.2">Implement user registration flow</task>
+      <task id="7" ac="1.3.2">Implement login flow</task>
+      <task id="8" ac="1.3.2">Create login page UI</task>
+      <task id="9" ac="1.3.2">Implement logout functionality</task>
+      <task id="10" ac="1.3.2">Implement protected route middleware</task>
+      <task id="11" ac="1.3.2">Implement session persistence</task>
+      <task id="12" ac="1.3.1">Add Prisma schema updates for NextAuth</task>
+      <task id="13" ac="All">Testing and verification</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <ac id="1.3.1">NextAuth.js v5 (Auth.js) is installed and configured with email/password provider, session management with JWT tokens, password hashing using bcrypt (minimum 10 rounds), secure session timeout (default 8 hours), and protected API routes middleware.</ac>
+    <ac id="1.3.2">Authentication flow works: users can register with email and password, users can log in with email and password, sessions persist across page refreshes, logout clears session and redirects to login, protected routes redirect unauthenticated users to login.</ac>
+    <ac id="1.3.3">Security requirements are met: passwords minimum 8 characters with complexity (1 uppercase, 1 number, 1 special character), passwords hashed before storage, session tokens signed with `NEXTAUTH_SECRET`, CSRF protection enabled, secure cookie settings (httpOnly, secure in production).</ac>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/sprint-artifacts/tech-spec-epic-1.md" title="Epic 1 Technical Specification" section="Story 1.3: Authentication Foundation with NextAuth.js">
+        Defines acceptance criteria for NextAuth.js v5 configuration, authentication flow requirements, and security requirements. Includes technical implementation details: email/password provider, JWT sessions, bcrypt password hashing (minimum 10 rounds), 8-hour session timeout, protected routes middleware, password complexity requirements, CSRF protection, secure cookie settings.
+      </doc>
+      <doc path="docs/epics.md" title="Epics and Stories" section="Story 1.3: Authentication Foundation with NextAuth.js">
+        User story definition with acceptance criteria, prerequisites (Story 1.2), and technical notes. Specifies NextAuth.js v5 installation, Prisma adapter setup, environment variables (NEXTAUTH_URL, NEXTAUTH_SECRET), login page creation, password validation, and rate limiting (5 attempts per hour per IP).
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture" section="Decision Summary">
+        Technology stack decision: NextAuth.js v5.x (Auth.js) for authentication. Next.js native, LinkedIn OAuth support, SSO-ready, open source. Specifies authentication system location in project structure.
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture" section="Security Architecture">
+        Authentication and authorization requirements: Password policies (minimum length, complexity), session management (JWT tokens, configurable timeout), API authentication (Bearer tokens via NextAuth.js sessions), rate limiting (5 login attempts per hour per IP). Security requirements: Password hashing (bcrypt), session tokens signed with secret, CSRF protection, secure cookie settings.
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture" section="Project Structure">
+        Defines authentication-related file locations: `src/lib/auth/config.ts` (NextAuth configuration), `src/app/api/auth/[...nextauth]/route.ts` (NextAuth API route), `src/app/(auth)/login/page.tsx` (login page), `src/middleware.ts` (protected routes middleware).
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture" section="Implementation Patterns">
+        Naming conventions: API routes (plural, kebab-case), functions (camelCase). Error handling: Structured error responses, HTTP status codes (400, 401, 403, 404, 500), tenant-aware logging. Logging: Structured JSON logs with tenant tagging.
+      </doc>
+      <doc path="docs/sprint-artifacts/1-2-database-schema-and-prisma-setup.md" title="Story 1.2 Completion Notes" section="Dev Agent Record">
+        Prisma client configured and ready. User model exists with `tenantId`, `email`, `passwordHash` fields. Email uniqueness is tenant-scoped: `@@unique([tenantId, email])`. MOAR Advisory tenant exists in database from seed script. Prisma 7.0.1 installed (backward compatible with 5.x API). Migrations set up and working.
+      </doc>
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Domain-Specific Requirements">
+        Security requirements: Multi-tenant data isolation, role-based access control (RBAC), audit trails for all candidate interactions, secure authentication with session management. Basic security: Password policies, session management, API authentication.
+      </doc>
+    </docs>
+    <code>
+      <file path="moar-ats/prisma/schema.prisma" kind="schema" symbol="User" lines="30-45" reason="User model already exists with tenantId, email, passwordHash fields. Email uniqueness is tenant-scoped. This model will be used by NextAuth Prisma adapter." />
+      <file path="moar-ats/prisma/schema.prisma" kind="schema" symbol="Tenant" lines="13-27" reason="Tenant model exists. MOAR Advisory tenant from seed script can be used for MVP authentication testing." />
+      <file path="moar-ats/prisma/seed.ts" kind="script" symbol="seed" reason="MOAR Advisory tenant exists in seed script. Use this tenant ID for MVP authentication testing." />
+      <file path="moar-ats/.env.local" kind="config" symbol="environment" reason="Environment variables file exists with DATABASE_URL. Add NEXTAUTH_URL and NEXTAUTH_SECRET here." />
+      <file path="moar-ats/.env.example" kind="config" symbol="environment_template" reason="Environment variable template. Update to document NEXTAUTH_URL and NEXTAUTH_SECRET placeholders." />
+      <file path="moar-ats/package.json" kind="manifest" symbol="dependencies" reason="Prisma 7.0.1 and @prisma/client 7.0.1 already installed. NextAuth.js v5, @auth/prisma-adapter, and bcryptjs need to be added." />
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="next-auth" version="beta">NextAuth.js v5 (Auth.js) - authentication library for Next.js</package>
+        <package name="@auth/prisma-adapter" version="latest">Prisma adapter for NextAuth.js - connects NextAuth to Prisma database</package>
+        <package name="bcryptjs" version="latest">Password hashing library - bcrypt implementation for Node.js</package>
+        <package name="@types/bcryptjs" version="latest">TypeScript types for bcryptjs (dev dependency)</package>
+        <package name="prisma" version="7.0.1">Prisma ORM (already installed, backward compatible with 5.x API)</package>
+        <package name="@prisma/client" version="7.0.1">Prisma client (already installed)</package>
+        <package name="next" version="16.0.4">Next.js framework (already installed)</package>
+        <package name="react" version="19.2.0">React library (already installed)</package>
+        <package name="react-dom" version="19.2.0">React DOM library (already installed)</package>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="authentication">NextAuth.js v5 (Auth.js) - must use NextAuth.js v5 with Auth.js architecture, compatible with Next.js 16.0.4</constraint>
+    <constraint type="session">JWT session tokens with 8-hour timeout - session strategy must use JWT, timeout configurable (default 8 hours inactivity)</constraint>
+    <constraint type="password">Password hashing using bcrypt with minimum 10 rounds - passwords must be hashed before storage, never stored in plain text</constraint>
+    <constraint type="security">Password complexity: minimum 8 characters, 1 uppercase, 1 number, 1 special character - validation required on frontend and backend</constraint>
+    <constraint type="security">Session tokens signed with NEXTAUTH_SECRET - must use environment variable for secret, never hardcode</constraint>
+    <constraint type="security">CSRF protection enabled - default in NextAuth v5, verify enabled</constraint>
+    <constraint type="security">Secure cookie settings: httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' - required for production security</constraint>
+    <constraint type="security">Rate limiting: 5 login attempts per hour per IP - prevents brute force attacks, implement in middleware or API route</constraint>
+    <constraint type="multi-tenant">User model includes tenantId field - session must include tenantId for tenant context (from Story 1.2 schema)</constraint>
+    <constraint type="multi-tenant">Email uniqueness is tenant-scoped: @@unique([tenantId, email]) - registration must check tenant-scoped uniqueness</constraint>
+    <constraint type="multi-tenant">Registration flow needs tenantId - for MVP, use seed tenant from Story 1.2 (MOAR Advisory)</constraint>
+    <constraint type="project-structure">NextAuth config location: src/lib/auth/config.ts - matches Architecture Section 3: Project Structure</constraint>
+    <constraint type="project-structure">API route location: src/app/api/auth/[...nextauth]/route.ts - NextAuth catch-all route handler</constraint>
+    <constraint type="project-structure">Login page location: src/app/(auth)/login/page.tsx - route group for auth pages</constraint>
+    <constraint type="project-structure">Middleware location: src/middleware.ts - Next.js middleware for protected routes</constraint>
+    <constraint type="ui">Trust Navy theme colors: primary #1e3a5f, secondary #0d47a1 - apply to login page UI</constraint>
+    <constraint type="ui">shadcn/ui components will be available after Story 1.5 - use basic HTML/styling for now</constraint>
+    <constraint type="prisma">Prisma 7.0.1 already installed - backward compatible with 5.x API, NextAuth Prisma adapter should work with this version</constraint>
+    <constraint type="prisma">NextAuth adapter tables may be needed: Account, Session, VerificationToken - review NextAuth Prisma adapter requirements, add to schema if needed</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="NextAuth Configuration" path="moar-ats/src/lib/auth/config.ts" kind="configuration">
+      <signature>NextAuth configuration with Prisma adapter, email/password credentials provider, JWT session strategy, bcrypt password hashing, session callbacks to include tenantId, CSRF protection, secure cookie settings</signature>
+      <note>Create this file to configure NextAuth.js v5. Use PrismaAdapter with Prisma client. Configure credentials provider for email/password authentication. Set up JWT session with 8-hour timeout. Include tenantId in session callbacks.</note>
+    </interface>
+    <interface name="NextAuth API Route" path="moar-ats/src/app/api/auth/[...nextauth]/route.ts" kind="API route">
+      <signature>GET and POST handlers exported from NextAuth config, catch-all route for /api/auth/* endpoints</signature>
+      <note>Create this file to handle NextAuth API routes. Export GET and POST handlers from NextAuth config. Route accessible at /api/auth/signin, /api/auth/signout, /api/auth/callback.</note>
+    </interface>
+    <interface name="Registration API Route" path="moar-ats/src/app/api/auth/register/route.ts" kind="API route">
+      <signature>POST /api/auth/register - Request: { email: string, password: string }, Response: { data: { user: User } } or { error: { code: string, message: string } }</signature>
+      <note>Create this file for user registration. Validate email format and password complexity. Check tenant-scoped email uniqueness. Hash password with bcrypt (minimum 10 rounds). Create user record with tenantId (use seed tenant for MVP). Add rate limiting (5 per hour per IP).</note>
+    </interface>
+    <interface name="Login Page" path="moar-ats/src/app/(auth)/login/page.tsx" kind="React component">
+      <signature>Login page component with email/password form, Trust Navy theme colors, form validation, NextAuth signIn integration, error handling</signature>
+      <note>Create this file for login UI. Design form with email and password fields. Apply Trust Navy theme colors (primary #1e3a5f, secondary #0d47a1). Use basic HTML/styling (shadcn/ui available after Story 1.5). Integrate with NextAuth signIn('credentials', { email, password, redirect: false }). Handle errors and display user-friendly messages.</note>
+    </interface>
+    <interface name="Protected Routes Middleware" path="moar-ats/src/middleware.ts" kind="Next.js middleware">
+      <signature>Next.js middleware function - checks session with NextAuth getToken(), protects routes, redirects unauthenticated users to /login</signature>
+      <note>Create or update this file for protected routes. Use NextAuth getToken() to check session. Protect routes: /api/* (except /api/auth/*), /(recruiter)/*, /(candidate)/*. Allow public routes: /, /login, /api/auth/*. Redirect unauthenticated users to /login with callbackUrl parameter.</note>
+    </interface>
+    <interface name="Password Validation Utility" path="moar-ats/src/lib/auth/password-validation.ts" kind="utility function">
+      <signature>validatePassword(password: string): { valid: boolean, errors: string[] }</signature>
+      <note>Create this file for password validation. Implement validation function: minimum 8 characters, 1 uppercase, 1 number, 1 special character. Return clear error messages for validation failures. Use in registration API route and frontend validation.</note>
+    </interface>
+    <interface name="Prisma Client" path="moar-ats/src/lib/db/prisma.ts" kind="database client">
+      <signature>PrismaClient instance - to be created in Story 1.4, use PrismaClient directly for now</signature>
+      <note>Prisma client will be created in Story 1.4. For Story 1.3, import PrismaClient directly from @prisma/client or create temporary instance. Use to query User model for authentication.</note>
+    </interface>
+    <interface name="Environment Variables" path="moar-ats/.env.local" kind="configuration">
+      <signature>NEXTAUTH_URL=http://localhost:3000, NEXTAUTH_SECRET=&lt;generated-secret&gt;</signature>
+      <note>Add NEXTAUTH_URL (e.g., http://localhost:3000 for dev) and NEXTAUTH_SECRET (generate with openssl rand -base64 32 or similar). Update .env.example to document these variables.</note>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing for Story 1.3 focuses on verifying NextAuth.js configuration, authentication flows, security requirements, and protected routes. Unit tests verify password validation and hashing. Integration tests verify registration, login, session persistence, and protected routes. E2E tests verify complete authentication flow. Security tests verify password hashing, CSRF protection, and rate limiting. Manual verification includes testing login/logout flows, session persistence, and protected route redirects.
+    </standards>
+    <locations>
+      Tests will be located in `__tests__/` directory (to be created in Story 1.6). For Story 1.3, create test files: `__tests__/unit/auth/password-validation.test.ts`, `__tests__/integration/auth/registration.test.ts`, `__tests__/integration/auth/login.test.ts`, `__tests__/e2e/auth-flow.test.ts`.
+    </locations>
+    <ideas>
+      <test ac="1.3.1">Verify NextAuth.js v5 installation: Check package.json for next-auth@beta, @auth/prisma-adapter, bcryptjs. Verify packages installed correctly.</test>
+      <test ac="1.3.1">Verify NextAuth configuration: Check src/lib/auth/config.ts exists with Prisma adapter, email/password credentials provider, JWT session strategy, bcrypt password hashing (minimum 10 rounds), session callbacks including tenantId, CSRF protection enabled, secure cookie settings.</test>
+      <test ac="1.3.1">Verify NextAuth API route: Check src/app/api/auth/[...nextauth]/route.ts exists with GET and POST handlers. Test route accessible at /api/auth/signin, /api/auth/signout, /api/auth/callback.</test>
+      <test ac="1.3.1">Verify Prisma schema updates: Review NextAuth Prisma adapter requirements. Check if Account, Session, VerificationToken tables needed. Create migration if needed: npx prisma migrate dev --name add_nextauth_tables.</test>
+      <test ac="1.3.2">Integration test: Registration flow - Create user with email and password, verify password hashed (never plain text), verify user created in database with tenantId, verify tenant-scoped email uniqueness enforced.</test>
+      <test ac="1.3.2">Integration test: Login flow - Login with valid credentials, verify session created, verify session includes user id, email, tenantId, role. Test invalid password returns error. Test non-existent user returns error.</test>
+      <test ac="1.3.2">Integration test: Session persistence - Login, refresh page, verify still authenticated. Verify session persists across page refreshes.</test>
+      <test ac="1.3.2">Integration test: Logout - Logout clears session, redirects to login, cannot access protected routes after logout.</test>
+      <test ac="1.3.2">Integration test: Protected routes - Authenticated user can access protected routes. Unauthenticated user redirected to /login with callbackUrl parameter.</test>
+      <test ac="1.3.2">E2E test: Complete authentication flow - Register user, login, access protected route, logout, verify cannot access protected route.</test>
+      <test ac="1.3.3">Unit test: Password validation - Test password validation function with various combinations: valid password, too short, missing uppercase, missing number, missing special character. Verify clear error messages returned.</test>
+      <test ac="1.3.3">Security test: Password hashing - Verify passwords hashed before storage (never plain text). Verify bcrypt rounds minimum 10. Test password comparison works correctly.</test>
+      <test ac="1.3.3">Security test: Session tokens - Verify session tokens signed with NEXTAUTH_SECRET. Test token validation and expiration.</test>
+      <test ac="1.3.3">Security test: CSRF protection - Verify CSRF protection enabled in NextAuth v5. Test CSRF token validation.</test>
+      <test ac="1.3.3">Security test: Secure cookie settings - Verify httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' settings applied.</test>
+      <test ac="1.3.3">Security test: Rate limiting - Test rate limiting on login attempts (5 attempts per hour per IP). Verify blocked after 5 failed attempts.</test>
+      <test ac="All">Manual test: Login page UI - Verify login form displays correctly, Trust Navy theme colors applied, form validation works, error messages display correctly, redirect after login works.</test>
+      <test ac="All">Manual test: Environment variables - Verify NEXTAUTH_URL and NEXTAUTH_SECRET set in .env.local. Verify .env.example documents these variables.</test>
+    </ideas>
+  </tests>
+</story-context>
+

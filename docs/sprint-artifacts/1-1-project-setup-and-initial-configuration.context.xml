@@ -1,0 +1,109 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Project Setup and Initial Configuration</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-25</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-1-project-setup-and-initial-configuration.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to initialize the Next.js project with TypeScript, Tailwind CSS, and core dependencies</iWant>
+    <soThat>I have a solid foundation for building the multi-tenant ATS platform</soThat>
+    <tasks>
+      <task id="1" ac="1.1.1">Initialize Next.js project</task>
+      <task id="2" ac="1.1.2">Create project directory structure</task>
+      <task id="3" ac="1.1.3">Configure package.json dependencies</task>
+      <task id="4" ac="1.1.4">Configure Tailwind with Trust Navy theme</task>
+      <task id="5" ac="1.1.1">Configure TypeScript strict mode</task>
+      <task id="6" ac="1.1.1">Create environment variable template</task>
+      <task id="7" ac="All">Testing setup</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <ac id="1.1.1">Project structure is created with Next.js 14+ App Router configured, TypeScript with strict mode, Tailwind CSS, ESLint, source directory (`src/`), environment variable template (`.env.example`), and Git repository initialized.</ac>
+    <ac id="1.1.2">Project structure follows architecture document: `src/app/` for routes, `src/components/` for components, `src/lib/` for utilities, `src/types/` for types, `prisma/` for schema, `__tests__/` for tests.</ac>
+    <ac id="1.1.3">`package.json` includes core dependencies: `next@latest`, `react@latest`, `react-dom@latest`, `typescript@latest`, `tailwindcss@latest`, `prisma@5.x`, `@prisma/client@5.x`.</ac>
+    <ac id="1.1.4">Tailwind is configured with Trust Navy color palette (primary: `#1e3a5f`, secondary: `#0d47a1`, accent: `#42a5f5`).</ac>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/sprint-artifacts/tech-spec-epic-1.md" title="Epic 1 Technical Specification" section="Detailed Design - Services and Modules">
+        Defines project setup module responsibilities, data models, APIs, and workflows for foundation epic. Includes Prisma schema structure, Next.js App Router setup, and multi-tenant architecture patterns.
+      </doc>
+      <doc path="docs/epics.md" title="Epics and Stories" section="Story 1.1: Project Setup and Initial Configuration">
+        User story definition with acceptance criteria, technical notes, and prerequisites. Specifies exact command to execute: `npx create-next-app@latest moar-ats --typescript --tailwind --app --eslint --src-dir`.
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture" section="Project Initialization">
+        Specifies Next.js 16.0.4 with App Router, TypeScript 5.9.3 with strict mode, Tailwind CSS 4.1.17, and project structure. Includes exact initialization command and version verification.
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture" section="Project Structure">
+        Defines complete directory structure: `src/app/` for routes, `src/components/` for components, `src/lib/` for utilities, `src/types/` for types, `prisma/` for schema, `__tests__/` for tests.
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture" section="Decision Summary">
+        Technology stack decisions: Next.js 16.0.4, TypeScript 5.9.3, Tailwind CSS 4.1.17, Prisma 5.x, PostgreSQL 16.x. All versions verified on 2025-11-25.
+      </doc>
+      <doc path="docs/ux-design-specification.md" title="UX Design Specification" section="Color System">
+        Trust Navy color palette: Primary `#1e3a5f` (Deep Navy), Secondary `#0d47a1` (Rich Blue), Accent `#42a5f5` (Bright Blue). Includes semantic color usage and neutral grayscale palette.
+      </doc>
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Project Classification">
+        SaaS B2B platform classification. Multi-tenant architecture, enterprise-grade security, compliance-ready patterns. General domain with low complexity Phase 1.
+      </doc>
+    </docs>
+    <code>
+      <!-- No existing code - greenfield project -->
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="next" version="16.0.4">Next.js framework with App Router</package>
+        <package name="react" version="latest">React library</package>
+        <package name="react-dom" version="latest">React DOM renderer</package>
+        <package name="typescript" version="5.9.3">TypeScript compiler with strict mode</package>
+        <package name="tailwindcss" version="4.1.17">Utility-first CSS framework</package>
+        <package name="prisma" version="5.x">Prisma ORM and CLI</package>
+        <package name="@prisma/client" version="5.x">Prisma client for TypeScript</package>
+        <package name="eslint" version="latest">ESLint for code quality</package>
+        <package name="eslint-config-next" version="latest">Next.js ESLint configuration</package>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="framework">Next.js 16.0.4 with App Router - must use App Router pattern, not Pages Router</constraint>
+    <constraint type="language">TypeScript 5.9.3 with strict mode enabled - all code must be type-safe</constraint>
+    <constraint type="structure">All source code in `src/` directory - not in root directory</constraint>
+    <constraint type="naming">API routes: Plural, kebab-case (e.g., `/api/jobs`). React components: PascalCase (e.g., `CandidateCard.tsx`). Functions: camelCase (e.g., `parseResume()`).</constraint>
+    <constraint type="styling">Tailwind CSS 4.1.17 with Trust Navy color palette - must configure colors in `tailwind.config.js`</constraint>
+    <constraint type="database">Prisma 5.x for ORM - schema will be defined in Story 1.2, but packages must be installed in Story 1.1</constraint>
+    <constraint type="environment">Environment variables must be documented in `.env.example` - never commit `.env.local` to Git</constraint>
+    <constraint type="testing">Test files in `__tests__/` directory - testing framework setup deferred to Story 1.6</constraint>
+  </constraints>
+
+  <interfaces>
+    <!-- No existing interfaces - greenfield project -->
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing framework setup is deferred to Story 1.6 (Development Environment and Deployment Pipeline). For Story 1.1, verify project structure manually: directories exist, TypeScript compiles, Tailwind CSS compiles, ESLint runs, Next.js dev server starts.
+    </standards>
+    <locations>
+      Tests will be located in `__tests__/` directory (to be created in Story 1.6). Structure: `__tests__/unit/`, `__tests__/integration/`, `__tests__/e2e/`.
+    </locations>
+    <ideas>
+      <test ac="1.1.1">Verify project structure: Check all required directories exist (`src/app/`, `src/components/`, `src/lib/`, `src/types/`, `prisma/`, `__tests__/`). Verify `.env.example` exists. Verify `.gitignore` exists and excludes `.env.local`.</test>
+      <test ac="1.1.2">Verify directory structure matches architecture: Check `src/app/` for Next.js App Router, verify all directories from architecture document exist.</test>
+      <test ac="1.1.3">Verify dependencies: Check `package.json` for all required packages with correct versions. Run `npm install` and verify no errors.</test>
+      <test ac="1.1.4">Verify Tailwind configuration: Check `tailwind.config.js` contains Trust Navy colors. Test color usage in a sample component to verify colors are accessible.</test>
+      <test ac="1.1.1">Verify TypeScript strict mode: Check `tsconfig.json` has `"strict": true`. Run `npx tsc --noEmit` and verify compilation works.</test>
+      <test ac="1.1.1">Verify environment template: Check `.env.example` contains all required variables with comments. Verify `.env.local` is in `.gitignore`.</test>
+      <test ac="All">Verify development server: Run `npm run dev` and verify Next.js dev server starts without errors. Verify hot reloading works.</test>
+    </ideas>
+  </tests>
+</story-context>
+
