@@ -66,8 +66,8 @@
       <file path="moar-ats/src/lib/db/prisma.ts" kind="service" symbol="db" lines="1-26" reason="Existing Prisma client instance - needs tenant middleware wrapper to automatically filter queries by tenant_id">
         Current Prisma client uses PrismaPg adapter with connection pool. Needs extension to add tenant middleware that filters all queries.
       </file>
-      <file path="moar-ats/src/middleware.ts" kind="middleware" symbol="middleware" lines="1-72" reason="Existing Next.js middleware for authentication - needs extension to extract tenant_id from session and validate tenant access">
-        Current middleware protects routes and checks authentication. Needs to extract tenant_id from token.session, set tenant context in headers, and validate tenant access.
+      <file path="moar-ats/src/proxy.ts" kind="proxy" symbol="proxy" lines="1-72" reason="Existing Next.js proxy handler for authentication - needs extension to extract tenant_id from session and validate tenant access">
+        Current proxy handler protects routes and checks authentication. Needs to extract tenant_id from token.session, set tenant context in headers, and validate tenant access.
       </file>
       <file path="moar-ats/src/lib/auth/config.ts" kind="service" symbol="authConfig" lines="1-113" reason="NextAuth configuration - session already includes tenantId field, can be used for tenant extraction">
         Session structure includes tenantId (line 63, 84, 95). Session callbacks maintain tenantId in JWT token. Can be extracted using getToken() from next-auth/jwt.
@@ -124,7 +124,7 @@
     <constraint>Testing: Database tests for RLS policies prevent cross-tenant SQL queries</constraint>
     <constraint>Follow existing test patterns from Story 1.3: __tests__/unit/auth/ and __tests__/integration/auth/</constraint>
     <constraint>Reuse NextAuth session structure (tenantId already included in session)</constraint>
-    <constraint>Extend existing middleware.ts for tenant extraction (already handles authentication)</constraint>
+    <constraint>Extend existing proxy.ts for tenant extraction (already handles authentication)</constraint>
   </constraints>
 
   <interfaces>
@@ -134,7 +134,7 @@
     <interface name="withTenant Helper" kind="function" signature="export async function withTenant&lt;T&gt;(tenantId: string, query: (prisma: PrismaClient) =&gt; Promise&lt;T&gt;): Promise&lt;T&gt;" path="moar-ats/src/lib/db/prisma.ts">
       Helper function for tenant-scoped queries. Automatically filters all queries by tenant_id within the query callback.
     </interface>
-    <interface name="Next.js Middleware" kind="middleware" signature="export async function middleware(request: NextRequest): Promise&lt;NextResponse&gt;" path="moar-ats/src/middleware.ts">
+    <interface name="Next.js Proxy Handler" kind="proxy" signature="export async function proxy(request: NextRequest): Promise&lt;NextResponse&gt;" path="moar-ats/src/proxy.ts">
       Extracts tenant_id from authenticated user's session (priority: session → subdomain → header). Sets tenant context in request headers. Validates tenant access. Returns 403 if unauthorized.
     </interface>
     <interface name="getTenantId" kind="function" signature="export function getTenantId(request: NextRequest | Request): Promise&lt;string | null&gt;" path="moar-ats/src/lib/tenant/context.ts">

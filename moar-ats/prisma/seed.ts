@@ -1,6 +1,18 @@
+/**
+ * NOTE: This file is only executed via `prisma db seed`.
+ * Do NOT import it from runtime/serverless code or it will bloat the bundle.
+ */
 import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
+
+if (!process.env.DATABASE_URL) {
+  console.error(
+    '❌ DATABASE_URL is not set. Seeding requires a live database connection.\n' +
+      'Tip: copy .env.example to .env.local, then run `npx prisma generate && npx prisma db seed`.'
+  );
+  process.exit(1);
+}
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,

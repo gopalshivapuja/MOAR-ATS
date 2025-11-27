@@ -162,7 +162,7 @@ moar-ats/
 │   │   │   └── password-validation.ts
 │   │   └── db/               # Database utilities
 │   │       └── prisma.ts     # Prisma client
-│   ├── middleware.ts         # Next.js middleware (protected routes)
+│   ├── proxy.ts              # Next.js proxy handler (protected routes)
 │   └── types/                # TypeScript types
 ├── prisma/
 │   ├── schema.prisma         # Database schema
@@ -220,7 +220,7 @@ npx prisma studio
 - ✅ Password complexity validation (8+ chars, uppercase, number, special char)
 - ✅ Secure password hashing (bcrypt, 10 rounds)
 - ✅ JWT session management (8-hour timeout)
-- ✅ Protected routes middleware
+- ✅ Protected routes proxy handler
 - ✅ Multi-tenant support (tenantId in session)
 - ✅ CSRF protection
 - ✅ Secure cookie settings
@@ -231,7 +231,7 @@ MOAR ATS implements comprehensive tenant isolation at multiple layers:
 
 ### Tenant Isolation Layers
 
-1. **Next.js Middleware** (`src/middleware.ts`)
+1. **Next.js Proxy Handler** (`src/proxy.ts`)
    - Extracts `tenant_id` from authenticated user's session
    - Sets tenant context for all downstream API routes and components
    - Validates tenant access on every request
@@ -254,7 +254,7 @@ MOAR ATS implements comprehensive tenant isolation at multiple layers:
 
 #### In API Routes
 
-Tenant context is automatically set by middleware. Use it in your API routes:
+Tenant context is automatically set by the proxy handler. Use it in your API routes:
 
 ```typescript
 import { requireTenantId } from '@/lib/tenant/context';
@@ -310,7 +310,7 @@ const newUser = await db.user.create({
   data: {
     email: 'user@example.com',
     name: 'User Name',
-    // tenantId is automatically set by middleware
+    // tenantId is automatically set by the proxy handler
   }
 });
 
@@ -449,7 +449,7 @@ npm test -- __tests__/unit/ui/
 - User registration UI (Epic 2)
 - Password reset flow (Epic 2)
 - Role-based access control (Epic 2)
-- Multi-tenant middleware improvements (Story 1.4)
+- Multi-tenant proxy handler improvements (Story 1.4)
 - ✅ UI component library (Story 1.5) - Complete
 
 ## Troubleshooting

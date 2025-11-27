@@ -36,6 +36,11 @@ git clone https://${DEPLOYMENT_TOKEN}@github.com/gopalshivapuja/moar-ats-app.git
    - Current: `gopalshivapuja`
    - If different → Update both files
 
+3. **Ensure Prisma client is generated during installs:**
+   - `postinstall` script in `moar-ats/package.json` should run `prisma generate`
+   - Vercel relies on this hook so TypeScript can find `PrismaClient` during `npm run build`
+   - If you rename or remove the script, expect build failures complaining that `PrismaClient` is missing
+
 ## How to Update (If Needed)
 
 ### Update Sync Script

@@ -20,10 +20,14 @@ function FormField({
   className,
   labelClassName,
 }: FormFieldProps) {
+  const childId = React.isValidElement<{ id?: string }>(children)
+    ? children.props.id
+    : undefined
+
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       <Label
-        htmlFor={React.isValidElement(children) && children.props.id ? children.props.id : undefined}
+        htmlFor={childId}
         className={cn("text-sm font-medium", labelClassName)}
       >
         {label}

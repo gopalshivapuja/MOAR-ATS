@@ -73,10 +73,10 @@ And deployment pipeline is configured:
 ├── prisma/                    # schema + migrations + seed
 ├── src/app/ (auth, recruiter, candidate, api routes)
 ├── src/components/ui/         # shadcn/ui base components
-├── src/lib/db/prisma.ts       # Prisma client with tenant middleware
+├── src/lib/db/prisma.ts       # Prisma client with tenant guardrails
 ├── src/lib/tenant/            # RLS helpers
 ├── src/hooks/useTenant.ts
-├── src/middleware.ts          # tenant extraction]]></snippet>
+├── src/proxy.ts               # tenant extraction]]></snippet>
       </doc>
       <doc path="docs/LOCAL-DEVELOPMENT-SETUP.md" title="Local Development Setup Guide" section="Complete Local Development Setup">
         <snippet><![CDATA[Create `docker-compose.yml` with postgres:16 and redis:7-alpine services, health checks, and mounted `postgres_data` volume. Start services with `docker-compose up -d`, inspect via `docker-compose ps`, and stop/clean with `docker-compose down` or `down -v`. The guide reiterates that `npm install` populates `moar-ats/node_modules/`, `.env.local` holds secrets, and every dependency stays project-local for reproducible onboarding.]]></snippet>

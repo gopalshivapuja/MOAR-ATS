@@ -13,7 +13,7 @@
  */
 
 import { PrismaClient, Prisma } from '@prisma/client';
-import { Pool } from 'pg';
+import { Pool, PoolClient } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { getTenantId, isSystemAdmin, requireTenantId } from '@/lib/tenant/context';
 
@@ -28,35 +28,43 @@ const PG_TENANT_CACHE_KEY = Symbol('pgTenantId');
 const PG_BYPASS_CACHE_KEY = Symbol('pgBypassRls');
 const PG_ROLE_PROMISE_KEY = Symbol('pgRolePromise');
 
+type AugmentedPoolClient = PoolClient & {
+  [PG_TENANT_CACHE_KEY]?: string;
+  [PG_BYPASS_CACHE_KEY]?: string;
+  [PG_ROLE_PROMISE_KEY]?: Promise<void>;
+};
+
 let ensureRolePromise: Promise<void> | null = null;
 let ensurePoliciesPromise: Promise<void> | null = null;
 
-pool.on('connect', (client) => {
-  const baseQuery = client.query.bind(client);
+pool.on('connect', (client: AugmentedPoolClient) => {
+  const baseQuery = client.query.bind(client) as PoolClient['query'];
 
   if (!client[PG_ROLE_PROMISE_KEY]) {
     client[PG_ROLE_PROMISE_KEY] = Promise.all([
       ensureRlsRole(baseQuery),
       ensureRlsPolicies(baseQuery),
     ])
-      .then(() => baseQuery(`SET SESSION AUTHORIZATION ${ENFORCED_ROLE}`))
+      .then(async () => {
+        await baseQuery(`SET SESSION AUTHORIZATION ${ENFORCED_ROLE}`);
+      })
       .catch((error) => {
         console.error('[db] Failed to initialize RLS role', error);
       });
   }
 
-  client.query = async (...args: any[]) => {
+  client.query = (async (...args: Parameters<PoolClient['query']>) => {
     if (client[PG_ROLE_PROMISE_KEY]) {
       await client[PG_ROLE_PROMISE_KEY];
     }
     await applySessionContext(baseQuery, client);
     return baseQuery(...args);
-  };
+  }) as PoolClient['query'];
 });
 
 async function applySessionContext(
   baseQuery: (queryText: any, values?: any) => Promise<any>,
-  client: any
+  client: AugmentedPoolClient
 ): Promise<void> {
   const tenantId = getTenantId() ?? NO_TENANT_CONTEXT;
   const bypassFlag = isSystemAdmin() ? 'true' : 'false';
@@ -211,7 +219,7 @@ function logTenantAccess(
 const tenantAwareModels = ['User', 'JobPosting', 'Candidate', 'Application'];
 const contextOptionalModels = ['Tenant', 'Account', 'Session', 'VerificationToken'];
 
-const prisma = basePrisma.$extends({
+const tenantPrisma = basePrisma.$extends({
   name: 'tenant-middleware',
   query: {
     $allModels: {
@@ -219,6 +227,8 @@ const prisma = basePrisma.$extends({
         const modelName = model || 'unknown';
         const isTenantAwareModel = model ? tenantAwareModels.includes(model) : false;
         const isContextOptionalModel = model ? contextOptionalModels.includes(model) : false;
+        const op = operation as string;
+        const mutatedArgs = args as Record<string, any>;
 
         // Get tenant context
         const tenantId = getTenantId();
@@ -233,34 +243,34 @@ const prisma = basePrisma.$extends({
 
         // System admins or context-optional models bypass tenant filtering
         if (isAdmin || !isTenantAwareModel || isContextOptionalModel) {
-          logTenantAccess(operation, modelName, tenantId, true);
-          return query(args);
+          logTenantAccess(op, modelName, tenantId, true);
+          return query(mutatedArgs);
         }
 
         // For tenant-aware models, tenant context is required
         if (!tenantId) {
           const error = new Error(
-            `Tenant context required for ${operation} on ${modelName}. Ensure middleware has set tenant context.`
+            `Tenant context required for ${op} on ${modelName}. Ensure middleware has set tenant context.`
           );
-          logTenantAccess(operation, modelName, null, false, error);
+          logTenantAccess(op, modelName, null, false, error);
           throw error;
         }
 
         // Only apply tenant filtering to tenant-aware models
         if (isTenantAwareModel) {
           // Inject tenant_id filter based on operation type
-          if (operation === 'findMany' || operation === 'findFirst') {
+          if (op === 'findMany' || op === 'findFirst') {
             // Add tenant_id to where clause
-            args.where = {
-              ...args.where,
+            mutatedArgs.where = {
+              ...mutatedArgs.where,
               tenantId,
             };
-          } else if (operation === 'findUnique' || operation === 'findFirst') {
+          } else if (op === 'findUnique' || op === 'findFirst') {
             // For findUnique, we need to ensure tenant_id matches
             // Prisma's findUnique requires unique fields, so we add tenantId to where
-            if (args.where) {
-              args.where = {
-                ...args.where,
+            if (mutatedArgs.where) {
+              mutatedArgs.where = {
+                ...mutatedArgs.where,
                 tenantId,
               };
             } else {
@@ -268,52 +278,52 @@ const prisma = basePrisma.$extends({
               const error = new Error(
                 `findUnique on ${model} requires tenant_id in where clause`
               );
-              logTenantAccess(operation, model, tenantId, false, error);
+              logTenantAccess(op, model, tenantId, false, error);
               throw error;
             }
-          } else if (operation === 'create') {
+          } else if (op === 'create') {
             // Ensure tenant_id is set on create
-            args.data = {
-              ...args.data,
+            mutatedArgs.data = {
+              ...mutatedArgs.data,
               tenantId,
             };
-          } else if (operation === 'update' || operation === 'updateMany') {
+          } else if (op === 'update' || op === 'updateMany') {
             // Add tenant_id to where clause to prevent cross-tenant updates
-            args.where = {
-              ...args.where,
+            mutatedArgs.where = {
+              ...mutatedArgs.where,
               tenantId,
             };
-          } else if (operation === 'delete' || operation === 'deleteMany') {
+          } else if (op === 'delete' || op === 'deleteMany') {
             // Add tenant_id to where clause to prevent cross-tenant deletes
-            args.where = {
-              ...args.where,
+            mutatedArgs.where = {
+              ...mutatedArgs.where,
               tenantId,
             };
-          } else if (operation === 'upsert') {
+          } else if (op === 'upsert') {
             // For upsert, ensure tenant_id in both where and create/update
-            args.where = {
-              ...args.where,
+            mutatedArgs.where = {
+              ...mutatedArgs.where,
               tenantId,
             };
-            if (args.create) {
-              args.create = {
-                ...args.create,
+            if (mutatedArgs.create) {
+              mutatedArgs.create = {
+                ...mutatedArgs.create,
                 tenantId,
               };
             }
-            if (args.update) {
-              args.update = {
-                ...args.update,
+            if (mutatedArgs.update) {
+              mutatedArgs.update = {
+                ...mutatedArgs.update,
                 tenantId,
               };
             }
           }
 
-          logTenantAccess(operation, modelName, tenantId, true);
+          logTenantAccess(op, modelName, tenantId, true);
         }
 
         // Execute the query with modified args
-        return query(args);
+        return query(mutatedArgs);
       },
     },
   },
@@ -322,10 +332,10 @@ const prisma = basePrisma.$extends({
 // Prevent multiple instances in development
 declare global {
   // eslint-disable-next-line no-var
-  var prisma: typeof prisma | undefined;
+  var prisma: typeof tenantPrisma | undefined;
 }
 
-export const db = globalThis.prisma || prisma;
+export const db = globalThis.prisma || tenantPrisma;
 
 if (process.env.NODE_ENV !== 'production') {
   globalThis.prisma = db;

@@ -91,7 +91,7 @@ So that **users can securely log in and sessions are managed properly**.
   - [ ] Test logout: session cleared, redirects to login, cannot access protected routes - Manual testing required
 
 - [x] Task 10: Implement protected route middleware (AC: 1.3.2)
-  - [x] Create or update `src/middleware.ts` (Next.js middleware)
+  - [x] Create or update `src/proxy.ts` (Next.js middleware)
   - [x] Use NextAuth `getToken()` to check session
   - [x] Protect routes: `/api/*` (except `/api/auth/*`), `/(recruiter)/*`, `/(candidate)/*`
   - [x] Redirect unauthenticated users to `/login` with `callbackUrl` parameter
@@ -151,7 +151,7 @@ So that **users can securely log in and sessions are managed properly**.
 - NextAuth config: `src/lib/auth/config.ts` (from Architecture Section 3: Project Structure)
 - API route: `src/app/api/auth/[...nextauth]/route.ts` (from Architecture Section 3: Project Structure)
 - Login page: `src/app/(auth)/login/page.tsx` (from Architecture Section 3: Project Structure)
-- Middleware: `src/middleware.ts` (from Architecture Section 3: Project Structure)
+- Middleware: `src/proxy.ts` (from Architecture Section 3: Project Structure)
 
 **UI/UX Considerations:**
 - Trust Navy theme colors: primary `#1e3a5f`, secondary `#0d47a1` (from Epic 1 Tech Spec: Story 1.3 Technical Notes)
@@ -164,7 +164,7 @@ So that **users can securely log in and sessions are managed properly**.
 - NextAuth config location: `src/lib/auth/config.ts` ✅ (matches Architecture Section 3: Project Structure)
 - API route location: `src/app/api/auth/[...nextauth]/route.ts` ✅ (matches Architecture Section 3: Project Structure)
 - Login page location: `src/app/(auth)/login/page.tsx` ✅ (matches Architecture Section 3: Project Structure)
-- Middleware location: `src/middleware.ts` ✅ (matches Architecture Section 3: Project Structure)
+- Middleware location: `src/proxy.ts` ✅ (matches Architecture Section 3: Project Structure)
 
 **Directory Structure:**
 ```
@@ -194,7 +194,7 @@ moar-ats/
 - `src/app/api/auth/[...nextauth]/route.ts` - NextAuth API route handler
 - `src/app/api/auth/register/route.ts` - Registration API route
 - `src/app/(auth)/login/page.tsx` - Login page UI
-- `src/middleware.ts` - Protected routes middleware (or update if exists)
+- `src/proxy.ts` - Protected routes middleware (or update if exists)
 
 **Files to Modify:**
 - `prisma/schema.prisma` - Add NextAuth adapter tables if needed (Account, Session, VerificationToken)
@@ -333,7 +333,7 @@ Claude Sonnet 4.5 (via Cursor) - Auto (Agent Router)
 - `moar-ats/src/app/api/auth/[...nextauth]/route.ts` - NextAuth API route handler
 - `moar-ats/src/app/api/auth/register/route.ts` - User registration API route
 - `moar-ats/src/app/(auth)/login/page.tsx` - Login page component
-- `moar-ats/src/middleware.ts` - Protected routes middleware
+- `moar-ats/src/proxy.ts` - Protected routes middleware
 - `moar-ats/src/types/next-auth.d.ts` - NextAuth type extensions
 - `moar-ats/src/components/auth/LogoutButton.tsx` - Logout button component
 - `moar-ats/__tests__/unit/auth/password-validation.test.ts` - Unit tests for password validation (11 tests)
@@ -387,8 +387,8 @@ This review systematically validated all acceptance criteria and completed tasks
 
 | AC# | Description | Status | Evidence |
 |-----|-------------|--------|----------|
-| **AC1.3.1** | NextAuth.js v5 installed and configured with email/password provider, JWT sessions, bcrypt (10 rounds), 8-hour timeout, protected routes middleware | ✅ **IMPLEMENTED** | `package.json:23` - next-auth@beta installed<br>`src/lib/auth/config.ts:19-113` - Full NextAuth config<br>`src/lib/auth/config.ts:20` - PrismaAdapter configured<br>`src/lib/auth/config.ts:22-67` - Credentials provider<br>`src/lib/auth/config.ts:69-72` - JWT strategy, 8-hour timeout<br>`src/app/api/auth/register/route.ts:90-91` - bcrypt.hash with 10 rounds<br>`src/middleware.ts:19-59` - Protected routes middleware |
-| **AC1.3.2** | Authentication flow: register, login, session persistence, logout, protected routes redirect | ✅ **IMPLEMENTED** | `src/app/api/auth/register/route.ts:24-123` - Registration API<br>`src/lib/auth/config.ts:28-66` - Login authorize function<br>`src/lib/auth/config.ts:69-72` - JWT session persistence<br>`src/components/auth/LogoutButton.tsx:23-29` - Logout with redirect<br>`src/middleware.ts:38-46,49-56` - Protected routes with redirect |
+| **AC1.3.1** | NextAuth.js v5 installed and configured with email/password provider, JWT sessions, bcrypt (10 rounds), 8-hour timeout, protected routes middleware | ✅ **IMPLEMENTED** | `package.json:23` - next-auth@beta installed<br>`src/lib/auth/config.ts:19-113` - Full NextAuth config<br>`src/lib/auth/config.ts:20` - PrismaAdapter configured<br>`src/lib/auth/config.ts:22-67` - Credentials provider<br>`src/lib/auth/config.ts:69-72` - JWT strategy, 8-hour timeout<br>`src/app/api/auth/register/route.ts:90-91` - bcrypt.hash with 10 rounds<br>`src/proxy.ts:19-59` - Protected routes middleware |
+| **AC1.3.2** | Authentication flow: register, login, session persistence, logout, protected routes redirect | ✅ **IMPLEMENTED** | `src/app/api/auth/register/route.ts:24-123` - Registration API<br>`src/lib/auth/config.ts:28-66` - Login authorize function<br>`src/lib/auth/config.ts:69-72` - JWT session persistence<br>`src/components/auth/LogoutButton.tsx:23-29` - Logout with redirect<br>`src/proxy.ts:38-46,49-56` - Protected routes with redirect |
 | **AC1.3.3** | Security: password complexity, password hashing, NEXTAUTH_SECRET signing, CSRF, secure cookies | ✅ **IMPLEMENTED** | `src/lib/auth/password-validation.ts:21-48` - Password validation (8+ chars, uppercase, number, special)<br>`src/app/api/auth/register/route.ts:90-91` - bcrypt.hash before storage<br>`src/lib/auth/config.ts:112` - NEXTAUTH_SECRET used<br>`src/lib/auth/config.ts:15` - CSRF enabled (default in v5)<br>`src/lib/auth/config.ts:101-110` - Secure cookie settings (httpOnly, secure, sameSite) |
 
 **Summary:** 3 of 3 acceptance criteria fully implemented (100% coverage)
@@ -408,7 +408,7 @@ This review systematically validated all acceptance criteria and completed tasks
 | **Task 7** | ✅ Complete | ✅ **VERIFIED COMPLETE** | `src/lib/auth/config.ts:22-67` - Credentials provider configured<br>`src/lib/auth/config.ts:28-66` - authorize function<br>`src/lib/auth/config.ts:35-42` - User lookup<br>`src/lib/auth/config.ts:49-56` - bcrypt.compare<br>`src/lib/auth/config.ts:59-65` - Return user with id, email, tenantId, role<br>`src/lib/auth/config.ts:44-46,54-56` - Error handling |
 | **Task 8** | ✅ Complete | ✅ **VERIFIED COMPLETE** | `src/app/(auth)/login/page.tsx:1-221` - Login page component<br>`src/app/(auth)/login/page.tsx:125-141,156-172` - Email and password fields<br>`src/app/(auth)/login/page.tsx:88,180` - Trust Navy colors (#1e3a5f, #0d47a1)<br>`src/app/(auth)/login/page.tsx:32-37` - Email format validation<br>`src/app/(auth)/login/page.tsx:40-44` - signIn('credentials') integration<br>`src/app/(auth)/login/page.tsx:46-50` - Error handling<br>`src/app/(auth)/login/page.tsx:201-216` - Register link |
 | **Task 9** | ✅ Complete | ✅ **VERIFIED COMPLETE** | `src/components/auth/LogoutButton.tsx:1-54` - Logout component<br>`src/components/auth/LogoutButton.tsx:24-27` - signOut() with redirect to /login |
-| **Task 10** | ✅ Complete | ✅ **VERIFIED COMPLETE** | `src/middleware.ts:1-73` - Middleware file<br>`src/middleware.ts:32-35` - getToken() to check session<br>`src/middleware.ts:38-46` - Protect /api/* (except /api/auth/*)<br>`src/middleware.ts:49-56` - Protect /recruiter and /candidate routes<br>`src/middleware.ts:51-53` - Redirect to /login with callbackUrl<br>`src/middleware.ts:23-29` - Allow public routes |
+| **Task 10** | ✅ Complete | ✅ **VERIFIED COMPLETE** | `src/proxy.ts:1-73` - Middleware file<br>`src/proxy.ts:32-35` - getToken() to check session<br>`src/proxy.ts:38-46` - Protect /api/* (except /api/auth/*)<br>`src/proxy.ts:49-56` - Protect /recruiter and /candidate routes<br>`src/proxy.ts:51-53` - Redirect to /login with callbackUrl<br>`src/proxy.ts:23-29` - Allow public routes |
 | **Task 11** | ✅ Complete | ✅ **VERIFIED COMPLETE** | `src/lib/auth/config.ts:69-72` - JWT strategy configured (persists by default)<br>`src/lib/auth/config.ts:77-99` - Session callbacks maintain user data |
 | **Task 12** | ✅ Complete | ✅ **VERIFIED COMPLETE** | `prisma/schema.prisma:108-148` - Account, Session, VerificationToken models<br>`prisma/migrations/20251126183824_add_nextauth_tables/migration.sql:1-59` - Migration created and applied<br>`prisma/schema.prisma:30-45` - User model with Account and Session relations |
 | **Task 13** | ✅ Complete | ✅ **VERIFIED COMPLETE** | `__tests__/unit/auth/password-validation.test.ts` - 11 unit tests (all passing)<br>`__tests__/integration/auth/registration.test.ts` - Registration integration tests<br>`__tests__/integration/auth/login.test.ts` - Login integration tests<br>`__tests__/e2e/auth-flow.test.ts` - E2E test structure<br>`__tests__/integration/auth/registration.test.ts:89-96` - Password hashing verification<br>`src/lib/auth/config.ts:15` - CSRF protection (default in v5) |
@@ -510,7 +510,7 @@ This review systematically validated all acceptance criteria and completed tasks
 **Next.js Best Practices:**
 - ✅ App Router pattern used (`src/app/api/auth/[...nextauth]/route.ts`)
 - ✅ Route groups for organization (`src/app/(auth)/login/page.tsx`)
-- ✅ Middleware for route protection (`src/middleware.ts`)
+- ✅ Middleware for route protection (`src/proxy.ts`)
 - ✅ TypeScript strict mode enabled
 - Reference: [Next.js Documentation](https://nextjs.org/docs)
 

@@ -302,7 +302,7 @@ So that **all data access is automatically filtered by tenant_id and data isolat
 **Prerequisites:** Story 1.3 (Authentication Foundation)
 
 **Technical Notes:**
-- Create `src/middleware.ts` for Next.js middleware
+- Create `src/proxy.ts` for the Next.js proxy handler
 - Implement `src/lib/db/rls.ts` for Prisma RLS helpers
 - Configure Prisma client with tenant middleware in `src/lib/db/prisma.ts`
 - Set up PostgreSQL RLS policies using Prisma migrations
