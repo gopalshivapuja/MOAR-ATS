@@ -205,7 +205,7 @@ moar-ats/
 - `docker-compose.yml` - Docker Compose for PostgreSQL 16 and Redis 7
 - `moar-ats/.env.local` - Local environment variables (DATABASE_URL, NEXTAUTH_SECRET, REDIS_URL)
 - `scripts/setup-database.sh` - Database setup helper script
-- `docs/DEPLOYMENT-STRATEGY.md` - Deployment strategy documentation (Vercel/Railway → AWS/OCI)
+- `docs/deployment/DEPLOYMENT-STRATEGY.md` - Deployment strategy documentation (Vercel/Railway → AWS/OCI)
 - `docs/LOCAL-DEVELOPMENT-SETUP.md` - Complete local development setup guide
 
 **Files Modified:**

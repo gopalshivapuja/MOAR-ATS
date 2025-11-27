@@ -6,6 +6,20 @@
 
 ---
 
+## ✅ Story 1.6 Quick Checklist
+
+Use this list before saying "dev env is ready":
+
+1. `./scripts/dev-stack.sh up` succeeds (Postgres 16 + Redis 7 running).
+2. `.env.local` created from `.env.example` with real secrets.
+3. `npm install` (project root) followed by `npm run dev` → hot reload working.
+4. `npm run type-check:watch` shows the new live TypeScript feedback loop.
+5. `npm test` (Jest) + `npm run test:e2e` (Playwright) both pass.
+6. `npx prisma migrate dev` succeeds on host **and** when pointed at the Compose database.
+7. README + this guide updated if you discovered extra steps—so the next agent never guesses.
+
+If any box is unchecked, capture the fix (docs + scripts) before moving to the next story.
+
 ## 🎯 Understanding Node.js Package Management
 
 ### Node.js vs Python Virtual Environments
@@ -115,6 +129,26 @@ docker-compose down
 docker-compose down -v
 ```
 
+#### One-liner helper script
+
+Once Docker Desktop is installed you can lean on the Story 1.6 helper script instead of memorizing every compose command:
+
+```bash
+# Start the stack (Postgres + Redis)
+./scripts/dev-stack.sh up
+
+# Follow logs until Ctrl+C
+./scripts/dev-stack.sh logs
+
+# Stop services (keeps volumes)
+./scripts/dev-stack.sh down
+
+# Nukes volumes for a clean slate
+./scripts/dev-stack.sh clean
+```
+
+The script auto-detects whether your machine exposes `docker compose` or the legacy `docker-compose` binary, so it runs the right command on both macOS and Linux without tweaks.
+
 **Option B: Homebrew (macOS)**
 
 ```bash
@@ -212,6 +246,11 @@ npx prisma migrate status
 npx prisma studio
 ```
 
+> ✅ Guardrail check: we validated `npx prisma migrate dev` in two environments during Story 1.6—
+> 1. **macOS host** with Homebrew Postgres.
+> 2. **Docker Compose** by running `docker compose exec postgres pg_isready` followed by `DATABASE_URL="postgresql://moar_ats:dev_password_change_in_production@postgres:5432/moar_ats" npx prisma migrate dev`.
+> This ensures both onboarding paths behave consistently.
+
 ---
 
 ### Step 5: Start Development Server
@@ -222,6 +261,48 @@ npm run dev
 
 # Open http://localhost:3000
 ```
+
+### Step 6: Hot Reload + Type Safety Watchers
+
+Story 1.6 formalizes the rapid feedback loop:
+
+```bash
+# Run both Next.js hot reload + live type checks
+npm run dev
+npm run type-check:watch
+```
+
+- `npm run dev` gives you the usual App Router hot reload experience.
+- `npm run type-check:watch` runs `tsc --noEmit --watch`, so TypeScript violations pop immediately even if ESLint is quiet.
+
+When you need a one-off CI-style gate, run:
+
+```bash
+npm run type-check
+npm run lint
+```
+
+### Step 7: Testing & Coverage
+
+```bash
+# Unit + integration suites (Jest)
+npm test
+
+# Coverage gate (80% global threshold enforced via jest.config.js)
+npm run test:coverage
+
+# End-to-end smoke (Playwright + health check)
+npm run test:e2e
+```
+
+> **Heads-up:** The first time you run Playwright, install the browsers once:
+> ```bash
+> npx playwright install
+> ```
+
+Story 1.6 also adds a scripted e2e spec (`__tests__/e2e/health-check.spec.ts`) so you always have a runnable template to extend. It exercises the landing page and `/api/health` route, validating the deployment pipeline before real product flows exist.
+
+- Jest now auto-loads `.env.local` during Story 1.6 runs, so the integration suites reuse the same Postgres connection string as `npm run dev`. Keep the Docker stack running before executing `npm test` or the pool will fail to connect.
 
 ---
 

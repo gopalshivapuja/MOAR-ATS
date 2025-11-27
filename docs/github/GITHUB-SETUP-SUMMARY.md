@@ -2,8 +2,8 @@
 
 ## What We've Set Up
 
-✅ **Git Workflow Guide** (`docs/GIT-WORKFLOW-GUIDE.md`)  
-✅ **Deployment Repo Setup** (`docs/DEPLOYMENT-REPO-SETUP.md`)  
+✅ **Git Workflow Guide** (`docs/github/GIT-WORKFLOW-GUIDE.md`)  
+✅ **Deployment Repo Setup** (`docs/deployment/DEPLOYMENT-REPO-SETUP.md`)  
 ✅ **Sync Script** (`scripts/sync-to-deployment.sh`)  
 ✅ **GitHub Actions Workflow** (`.github/workflows/sync-deployment.yml`)  
 
@@ -118,14 +118,14 @@ git push
 
 ## Files to Review
 
-- `docs/GIT-WORKFLOW-GUIDE.md` - Complete workflow guide
-- `docs/DEPLOYMENT-REPO-SETUP.md` - Deployment setup
+- `docs/github/GIT-WORKFLOW-GUIDE.md` - Complete workflow guide
+- `docs/deployment/DEPLOYMENT-REPO-SETUP.md` - Deployment setup
 - `scripts/sync-to-deployment.sh` - Manual sync script
 - `.github/workflows/sync-deployment.yml` - Auto-sync workflow
 
 ## Questions?
 
 See the detailed guides:
-- Git Workflow: `docs/GIT-WORKFLOW-GUIDE.md`
-- Deployment Setup: `docs/DEPLOYMENT-REPO-SETUP.md`
+- Git Workflow: `docs/github/GIT-WORKFLOW-GUIDE.md`
+- Deployment Setup: `docs/deployment/DEPLOYMENT-REPO-SETUP.md`
 

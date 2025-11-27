@@ -28,31 +28,43 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        setError('Please enter a valid email address');
+      const trimmedEmail = email.trim();
+      console.log('login attempt', { trimmedEmail, passwordLength: password.length });
+      if (!trimmedEmail) {
+        setError('Email is required');
+        setLoading(false);
+        return;
+      }
+      if (!password) {
+        setError('Password is required');
         setLoading(false);
         return;
       }
 
       // Attempt sign in
       const result = await signIn('credentials', {
-        email: email.toLowerCase(),
+        email: trimmedEmail.toLowerCase(),
         password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError('Invalid email or password');
+        const message =
+          result.error === 'CredentialsSignin'
+            ? 'Invalid email or password'
+            : 'Unable to sign in right now.';
+        setError(message);
         setLoading(false);
         return;
       }
 
       if (result?.ok) {
         // Redirect to dashboard or home page
+        setEmail('');
+        setPassword('');
         router.push('/');
         router.refresh();
+        setLoading(false);
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -124,11 +136,13 @@ export default function LoginPage() {
             </label>
             <input
               id="email"
+              name="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
               required
               disabled={loading}
+              autoComplete="email"
               style={{
                 width: '100%',
                 padding: '0.75rem',
@@ -155,11 +169,13 @@ export default function LoginPage() {
             </label>
             <input
               id="password"
+              name="password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
               required
               disabled={loading}
+              autoComplete="current-password"
               style={{
                 width: '100%',
                 padding: '0.75rem',

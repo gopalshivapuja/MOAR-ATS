@@ -651,7 +651,135 @@ These patterns ensure consistent implementation across all AI agents:
 
 ### Multi-Tenant Isolation
 
-- **Database**: Row-level security (RLS) with tenant_id
+MOAR ATS implements defense-in-depth tenant isolation across three layers:
+
+#### 1. Next.js Middleware Layer (`src/middleware.ts`)
+
+**Tenant Extraction Priority:**
+1. Session (from NextAuth token) - PRIMARY source
+2. Subdomain (future: `tenant-slug.moar-ats.com`)
+3. Header (`X-Tenant-ID`) - for system admin operations only
+
+**Responsibilities:**
+- Extracts `tenant_id` from authenticated user's session
+- Sets tenant context using `AsyncLocalStorage` for all downstream operations
+- Validates tenant access on every request
+- Returns 403 Forbidden if user tries to access another tenant's data
+- Logs all tenant access attempts (tenant_id, user_id, action, timestamp)
+- Sets tenant context in request headers for downstream API routes
+
+**Implementation:**
+- Uses `getToken()` from `next-auth/jwt` to extract session data
+- Calls `setTenantContext()` to establish tenant context for the request
+- Sets `X-Tenant-ID`, `X-User-ID`, and `X-User-Role` headers
+
+#### 2. Prisma Middleware Layer (`src/lib/db/prisma.ts`)
+
+**Automatic Query Filtering:**
+- All database queries are automatically filtered by `tenant_id`
+- Applies to all operations: `findMany`, `findUnique`, `findFirst`, `create`, `update`, `delete`, `upsert`
+- Uses Prisma's `$extends` feature to inject tenant filters
+
+**Operation-Specific Behavior:**
+- `findMany`/`findFirst`: Adds `tenantId` to `where` clause
+- `findUnique`: Ensures `tenantId` matches in `where` clause
+- `create`: Automatically sets `tenantId` in `data`
+- `update`/`updateMany`: Adds `tenantId` to `where` clause (prevents cross-tenant updates)
+- `delete`/`deleteMany`: Adds `tenantId` to `where` clause (prevents cross-tenant deletes)
+- `upsert`: Ensures `tenantId` in both `where` and `create`/`update`
+
+**System Admin Bypass:**
+- System admins (role = `SYSTEM_ADMIN`) can bypass tenant restrictions
+- Useful for tenant management operations
+- All admin operations are logged for audit
+
+**Helper Functions:**
+- `withTenant(tenantId, queryFn)`: Execute query in specific tenant context
+- Useful for system admin operations or tenant management
+
+#### 3. PostgreSQL Row-Level Security (RLS) Layer
+
+**Database-Level Policies:**
+- All tenant-aware tables have RLS enabled
+- Policies check `tenant_id` matches authenticated user's tenant
+- System admins can bypass RLS (via `app.bypass_rls` session variable)
+- Policies prevent direct SQL access with wrong `tenant_id`
+
+**Policy Structure:**
+```sql
+CREATE POLICY "users_tenant_isolation" ON "users"
+  FOR ALL
+  USING (
+    current_setting('app.bypass_rls', true) = 'true'
+    OR
+    "tenant_id" = current_setting('app.tenant_id', true)::uuid
+  );
+```
+
+**Tables with RLS:**
+- `users` - User accounts
+- `job_postings` - Job postings
+- `candidates` - Candidate profiles
+- `applications` - Job applications
+
+**Tables without RLS:**
+- `tenants` - Tenant management (system admin only)
+- `accounts`, `sessions`, `verification_tokens` - NextAuth tables (not tenant-aware)
+
+**Note:** RLS policies are in place for defense-in-depth. Prisma middleware provides the primary tenant filtering. Full RLS activation requires connection-level session variable setting (can be enhanced in future).
+
+#### Tenant Context Utilities (`src/lib/tenant/context.ts`)
+
+**AsyncLocalStorage-Based Context:**
+- Uses Node.js `AsyncLocalStorage` to maintain tenant context per async operation
+- Context automatically propagates through async/await chains
+- Isolated per request/operation
+
+**Functions:**
+- `getTenantId()`: Get current tenant ID from context
+- `requireTenantId()`: Get tenant ID or throw error if missing
+- `isSystemAdmin()`: Check if current user is system admin
+- `withTenantContext()`: Run function with specific tenant context
+- `setTenantContext()`: Set tenant context for current operation
+
+#### React Hook (`src/hooks/useTenant.ts`)
+
+**Client-Side Tenant Access:**
+- `useTenant()` hook provides tenant context to React components
+- Reads `tenantId` from NextAuth session
+- Returns `{ tenantId, isLoading, error }`
+- Handles loading and error states
+
+**Usage:**
+```typescript
+const { tenantId, isLoading, error } = useTenant();
+```
+
+#### Audit Logging
+
+**Log Format:**
+```json
+{
+  "operation": "findMany",
+  "model": "User",
+  "tenantId": "uuid",
+  "userId": "uuid",
+  "success": true,
+  "timestamp": "2025-11-27T12:00:00.000Z"
+}
+```
+
+**Log Levels:**
+- `INFO`: Successful tenant access
+- `WARN`: Unauthorized access attempt
+- `ERROR`: System error during tenant access
+
+**Storage:**
+- Development: Console logs
+- Production (Story 9): `audit_logs` table with tenant tagging
+
+#### Storage & Logs
+
 - **Storage**: Tenant-prefixed buckets/keys (`s3://moar-ats/{tenant_id}/resumes/`)
 - **Logs**: Tenant-tagged for compliance reviews
 - **API**: Middleware validates tenant_id on every request
@@ -799,10 +927,10 @@ ANTHROPIC_API_KEY="your-anthropic-key"
 
 ### ADR-003: Prisma ORM
 
-**Status:** Accepted  
-**Context:** Need type-safe database access with excellent TypeScript support  
-**Decision:** Prisma 5.x as ORM  
-**Consequences:** Type safety, excellent Next.js integration, strong migration system, active community
+**Status:** Accepted (Updated 2025-11-27)  
+**Context:** Need type-safe database access with excellent TypeScript support and native `pg` adapter optimisations  
+**Decision:** Prisma 7.x with `@prisma/adapter-pg`  
+**Consequences:** Type safety, better connection pooling and RLS session hooks, access to the latest security patches; legacy references to Prisma 5.x remain compatible but all new code targets 7.x
 
 ### ADR-004: Adaptive AI Learning System
 
@@ -817,7 +945,14 @@ ANTHROPIC_API_KEY="your-anthropic-key"
 **Context:** Need fast MVP iteration, then enterprise-grade infrastructure  
 **Decision:** Start with Vercel or Railway for MVP, migrate to AWS or OCI with GitOps (Terraform + ArgoCD) for Phase 2  
 **Consequences:** Fast MVP development, minimal infrastructure complexity, easy migration path when enterprise features needed  
-**Reference:** See `docs/DEPLOYMENT-STRATEGY.md` for detailed deployment plan and migration strategy
+**Reference:** See `docs/deployment/DEPLOYMENT-STRATEGY.md` for detailed deployment plan and migration strategy
+
+### ADR-006: Tailwind CSS v4 Inline Theme
+
+**Status:** Accepted (2025-11-27)  
+**Context:** Tailwind v4 replaces `tailwind.config.js` with CSS-first theming; shadcn/ui components must consume the Trust Navy palette defined in CSS variables.  
+**Decision:** Adopt Tailwind CSS 4.1.17 with `@theme inline` inside `src/app/globals.css`. All future styling changes extend the global CSS theme rather than resurrecting the legacy config file.  
+**Consequences:** Consistent theming, smaller config surface, clearer coupling with the UX spec. Tooling and documentation must reference the CSS-first workflow.
 
 ---
 
@@ -829,6 +964,7 @@ ANTHROPIC_API_KEY="your-anthropic-key"
 - Next.js: 16.0.4
 - TypeScript: 5.9.3
 - Tailwind CSS: 4.1.17
+- Prisma: 7.0.1
 - Resend: 6.5.2
 - create-next-app: 16.0.4
 

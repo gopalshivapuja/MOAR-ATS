@@ -276,7 +276,7 @@ Once you've:
 
 ## 📚 Additional Resources
 
-- **Git Workflow Guide:** `docs/GIT-WORKFLOW-GUIDE.md`
-- **Deployment Setup:** `docs/DEPLOYMENT-REPO-SETUP.md`
-- **Quick Reference:** `docs/GITHUB-SETUP-SUMMARY.md`
+- **Git Workflow Guide:** `docs/github/GIT-WORKFLOW-GUIDE.md`
+- **Deployment Setup:** `docs/deployment/DEPLOYMENT-REPO-SETUP.md`
+- **Quick Reference:** `docs/github/GITHUB-SETUP-SUMMARY.md`
 

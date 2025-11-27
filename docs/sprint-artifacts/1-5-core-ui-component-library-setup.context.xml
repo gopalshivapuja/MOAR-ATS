@@ -1,0 +1,209 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.5</storyId>
+    <title>Core UI Component Library Setup</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-27</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-5-core-ui-component-library-setup.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to set up shadcn/ui component library with Trust Navy theme</iWant>
+    <soThat>I have reusable, accessible UI components that match the design system</soThat>
+    <tasks>
+      <task id="1">Install and initialize shadcn/ui</task>
+      <task id="2">Configure Trust Navy color theme in Tailwind</task>
+      <task id="3">Configure typography system</task>
+      <task id="4">Configure spacing system</task>
+      <task id="5">Install core shadcn/ui components</task>
+      <task id="6">Configure button hierarchy</task>
+      <task id="7">Configure form input components</task>
+      <task id="8">Configure loading states</task>
+      <task id="9">Configure responsive breakpoints</task>
+      <task id="10">Ensure WCAG 2.1 Level AA compliance</task>
+      <task id="11">Implement keyboard navigation support</task>
+      <task id="12">Create component showcase page</task>
+      <task id="13">Write component tests</task>
+      <task id="14">Update documentation</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC1.5.1">shadcn/ui is installed and configured with Trust Navy color theme applied (primary: #1e3a5f, secondary: #0d47a1, accent: #42a5f5), core components available (Button, Input, Card, Modal, Toast, Form), typography system configured (Roboto Slab for headings, Roboto for body), spacing system using 4px base unit, and accessibility features enabled (ARIA labels, keyboard navigation).</criterion>
+    <criterion id="AC1.5.2">Components follow UX design specifications: button hierarchy (Primary: Deep Navy, Secondary: Rich Blue, Tertiary: Outline), form inputs with labels above fields and required field indicators, error states with inline messages below fields, loading states with skeleton screens and spinners, responsive breakpoints (mobile: max 767px, tablet: 768-1023px, desktop: min 1024px).</criterion>
+    <criterion id="AC1.5.3">Components are accessible: WCAG 2.1 Level AA compliant, keyboard navigation support, screen reader compatible (ARIA labels), color contrast ratios meet standards (4.5:1 for text, 3:1 for interactive).</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>MOAR ATS - Epic Breakdown</title>
+        <section>Story 1.5: Core UI Component Library Setup</section>
+        <snippet>Story definition with acceptance criteria, technical notes, and prerequisites. Specifies shadcn/ui installation, Trust Navy theme configuration, core components (Button, Input, Card, Modal, Toast, Form), typography (Roboto Slab, Roboto), and 4px spacing system.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Structure</section>
+        <snippet>Defines project structure with src/components/ui/ for base UI components (shadcn/ui). Specifies Next.js 16.0.4, TypeScript 5.9.3, Tailwind CSS 4.1.17, and component organization patterns.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>MOAR ATS UX Design Specification</title>
+        <section>Color System</section>
+        <snippet>Trust Navy color palette: Primary #1e3a5f (Deep Navy), Secondary #0d47a1 (Rich Blue), Accent #42a5f5 (Bright Blue). Includes semantic colors (success, warning, error) and neutral grayscale palette (Neutral 50-900).</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>MOAR ATS UX Design Specification</title>
+        <section>Typography System</section>
+        <snippet>Font families: Roboto Slab (serif) for headings, Roboto (sans-serif) for body text. Type scale: H1 (2.5rem/40px) to Tiny (0.75rem/12px). Font weights: Regular (400), Medium (500), Bold (700). Line heights: Headings (1.2), Body (1.6), Small (1.5).</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>MOAR ATS UX Design Specification</title>
+        <section>Spacing &amp; Layout Foundation</section>
+        <snippet>4px base unit spacing system: xs (4px), sm (8px), md (16px), lg (24px), xl (32px), 2xl (48px), 3xl (64px). Border radius: small (4px), medium (8px), large (12px), round (50%). Responsive breakpoints: mobile (max 767px), tablet (768-1023px), desktop (min 1024px).</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>MOAR ATS UX Design Specification</title>
+        <section>Component Specifications</section>
+        <snippet>Button hierarchy: Primary (Deep Navy), Secondary (Rich Blue), Tertiary (Outline). Form inputs with labels above fields, required field indicators, error states with inline messages, loading states with skeleton screens and spinners.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>MOAR ATS UX Design Specification</title>
+        <section>Accessibility</section>
+        <snippet>WCAG 2.1 Level AA compliance required. Color contrast: 4.5:1 for text, 3:1 for interactive elements. Keyboard navigation support, screen reader compatibility with ARIA labels, visible focus indicators.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation &amp; Infrastructure</title>
+        <section>Story 1.5: Core UI Component Library Setup</section>
+        <snippet>Technical specification with acceptance criteria for shadcn/ui setup, Trust Navy theme, typography, spacing, component installation, and accessibility requirements.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/1-4-multi-tenant-middleware-and-row-level-security.md</path>
+        <title>Story 1.4: Multi-Tenant Middleware and Row-Level Security</title>
+        <section>Dev Agent Record</section>
+        <snippet>Previous story learnings: Project structure in moar-ats/ subdirectory, Tailwind v4 uses CSS-based config in globals.css, testing patterns established in __tests__/unit/ and __tests__/integration/, Trust Navy colors already configured.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/1-1-project-setup-and-initial-configuration.md</path>
+        <title>Story 1.1: Project Setup and Initial Configuration</title>
+        <section>Dev Agent Record</section>
+        <snippet>Project initialization learnings: Tailwind CSS v4 uses CSS-based configuration via @theme inline in globals.css, Trust Navy colors configured in src/app/globals.css, component directory structure established.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>moar-ats/src/app/globals.css</path>
+        <kind>stylesheet</kind>
+        <symbol>Trust Navy color theme</symbol>
+        <lines>1-68</lines>
+        <reason>Contains Trust Navy color palette CSS variables already configured. Need to extend for shadcn/ui components. Uses Tailwind v4 @theme inline configuration.</reason>
+      </artifact>
+      <artifact>
+        <path>moar-ats/src/components</path>
+        <kind>directory</kind>
+        <symbol>components directory</symbol>
+        <lines>N/A</lines>
+        <reason>Component directory exists from Story 1.1. Need to create src/components/ui/ subdirectory for shadcn/ui components.</reason>
+      </artifact>
+      <artifact>
+        <path>moar-ats/__tests__/unit/tenant/context.test.ts</path>
+        <kind>test</kind>
+        <symbol>unit test pattern</symbol>
+        <lines>1-50</lines>
+        <reason>Example unit test structure to follow for component tests. Shows Jest testing patterns, describe/it blocks, and test organization.</reason>
+      </artifact>
+      <artifact>
+        <path>moar-ats/package.json</path>
+        <kind>manifest</kind>
+        <symbol>dependencies</symbol>
+        <lines>1-52</lines>
+        <reason>Current project dependencies. Note: shadcn/ui components will be added via CLI (not npm packages). Need to verify Tailwind CSS v4 compatibility with shadcn/ui.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="next" version="16.0.4" />
+        <package name="react" version="19.2.0" />
+        <package name="react-dom" version="19.2.0" />
+        <package name="typescript" version="^5" />
+        <package name="tailwindcss" version="^4" />
+        <package name="@tailwindcss/postcss" version="^4" />
+        <package name="eslint" version="^9" />
+        <package name="eslint-config-next" version="16.0.4" />
+        <package name="jest" version="^30.2.0" />
+        <package name="@jest/globals" version="^30.2.0" />
+        <package name="jest-environment-jsdom" version="^30.2.0" />
+        <package name="ts-jest" version="^29.4.5" />
+        <package name="@types/react" version="^19" />
+        <package name="@types/react-dom" version="^19" />
+        <package name="@types/node" version="^20" />
+        <package name="@types/jest" version="^30.0.0" />
+      </ecosystem>
+      <note>shadcn/ui components are installed via CLI (npx shadcn@latest) and copied into project, not installed as npm packages. Components depend on Radix UI primitives which will be installed automatically.</note>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>All components must use Trust Navy color palette: primary #1e3a5f, secondary #0d47a1, accent #42a5f5</constraint>
+    <constraint>Typography: Roboto Slab for headings, Roboto for body text (Google Fonts)</constraint>
+    <constraint>Spacing: 4px base unit system (xs: 4px, sm: 8px, md: 16px, lg: 24px, xl: 32px, 2xl: 48px, 3xl: 64px)</constraint>
+    <constraint>Border radius: small (4px), medium (8px), large (12px), round (50%)</constraint>
+    <constraint>Responsive breakpoints: mobile (max 767px), tablet (768-1023px), desktop (min 1024px)</constraint>
+    <constraint>WCAG 2.1 Level AA compliance mandatory for all components</constraint>
+    <constraint>Color contrast: 4.5:1 for text, 3:1 for interactive elements</constraint>
+    <constraint>Keyboard navigation support required for all interactive components</constraint>
+    <constraint>Screen reader compatibility with proper ARIA labels</constraint>
+    <constraint>Visible focus indicators required</constraint>
+    <constraint>Tailwind CSS v4 uses CSS-based configuration via @theme inline in globals.css (not separate tailwind.config.js)</constraint>
+    <constraint>Components must be placed in src/components/ui/ directory</constraint>
+    <constraint>Follow existing test patterns from __tests__/unit/ and __tests__/integration/ directories</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>shadcn/ui CLI</name>
+      <kind>command-line interface</kind>
+      <signature>npx shadcn@latest init - Initializes shadcn/ui and creates components.json configuration file</signature>
+      <path>N/A (CLI tool)</path>
+    </interface>
+    <interface>
+      <name>shadcn/ui CLI</name>
+      <kind>command-line interface</kind>
+      <signature>npx shadcn@latest add [component] - Installs component (button, input, card, dialog, toast, form, skeleton)</signature>
+      <path>N/A (CLI tool)</path>
+    </interface>
+    <interface>
+      <name>Tailwind CSS v4 Theme</name>
+      <kind>CSS configuration</kind>
+      <signature>@theme inline { --color-primary, --color-secondary, --color-accent, ... } - CSS-based theme configuration in globals.css</signature>
+      <path>moar-ats/src/app/globals.css</path>
+    </interface>
+    <interface>
+      <name>Google Fonts</name>
+      <kind>web font service</kind>
+      <signature>Roboto Slab (headings), Roboto (body) - Typography fonts to be configured in next.config.js or layout.tsx</signature>
+      <path>N/A (external service)</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Jest configured for unit tests with @jest/globals, jest-environment-jsdom for React component testing, ts-jest for TypeScript support. Follow existing test patterns from __tests__/unit/tenant/ and __tests__/integration/tenant/ directories. Test component variants, states, accessibility features (ARIA labels, keyboard navigation, color contrast). Use React Testing Library for component interaction tests. Write unit tests for each component variant and state, integration tests for component interactions and form flows, accessibility tests for keyboard navigation and screen reader compatibility.</standards>
+    <locations>__tests__/unit/ - Unit tests for individual components. __tests__/integration/ - Integration tests for component interactions. __tests__/e2e/ - E2E tests (Playwright, optional for this story).</locations>
+    <ideas>
+      <idea criterion="AC1.5.1">Test shadcn/ui initialization creates components.json with correct paths. Test Trust Navy colors are applied to components. Test typography system (Roboto Slab, Roboto) loads correctly. Test 4px spacing system works in components. Test ARIA labels are present on interactive components. Test keyboard navigation works (Tab, Enter, Space, Escape).</idea>
+      <idea criterion="AC1.5.2">Test button variants (Primary, Secondary, Tertiary) render with correct colors. Test form inputs have labels above fields. Test required field indicators appear. Test error states show inline messages below fields. Test loading states show skeleton screens and spinners. Test responsive breakpoints (mobile, tablet, desktop) work correctly.</idea>
+      <idea criterion="AC1.5.3">Test color contrast ratios meet WCAG 2.1 Level AA (4.5:1 for text, 3:1 for interactive). Test all interactive components are keyboard accessible. Test ARIA labels are correct for screen readers. Test focus indicators are visible. Test Tab navigation through form elements. Test Enter/Space activation for buttons. Test Escape key closes modals/dialogs.</idea>
+    </ideas>
+  </tests>
+</story-context>
+

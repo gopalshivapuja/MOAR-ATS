@@ -1,7 +1,7 @@
 // NextAuth v5 configuration
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import { db } from '@/lib/db/prisma';
+import { db, withTenant } from '@/lib/db/prisma';
 import bcrypt from 'bcryptjs';
 
 /**
@@ -30,16 +30,27 @@ export const authConfig = {
           throw new Error('Email and password are required');
         }
 
-        // Find user by email (tenant-scoped lookup will be handled in Story 1.4)
-        // For MVP, we'll use the first tenant (MOAR Advisory)
-        const user = await db.user.findFirst({
-          where: {
-            email: credentials.email as string,
-          },
-          include: {
-            tenant: true,
-          },
+        const normalizedEmail = (credentials.email as string).trim().toLowerCase();
+
+        // For MVP, authenticate within the MOAR Advisory tenant context
+        const tenant = await db.tenant.findUnique({
+          where: { slug: 'moar-advisory' },
         });
+
+        if (!tenant) {
+          throw new Error('Default tenant not configured');
+        }
+
+        const user = await withTenant(tenant.id, (prisma) =>
+          prisma.user.findUnique({
+            where: {
+              tenantId_email: {
+                tenantId: tenant.id,
+                email: normalizedEmail,
+              },
+            },
+          })
+        );
 
         if (!user) {
           throw new Error('Invalid email or password');

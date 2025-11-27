@@ -1,7 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/prisma';
 import bcrypt from 'bcryptjs';
 import { validatePassword } from '@/lib/auth/password-validation';
+import {
+  buildRateLimitResponse,
+  guardRequestRateLimit,
+} from '@/lib/rate-limit';
+
+const REGISTRATION_RATE_LIMIT = {
+  keyPrefix: 'register',
+  limit: 5,
+  windowSeconds: 60 * 60,
+} as const;
 
 /**
  * User registration API route
@@ -21,8 +31,16 @@ import { validatePassword } from '@/lib/auth/password-validation';
  * - 500: Server error
  */
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
+    const rateLimit = await guardRequestRateLimit(
+      request,
+      REGISTRATION_RATE_LIMIT
+    );
+    if (!rateLimit.allowed) {
+      return buildRateLimitResponse(rateLimit);
+    }
+
     const body = await request.json();
     const { email, password, name } = body;
 
