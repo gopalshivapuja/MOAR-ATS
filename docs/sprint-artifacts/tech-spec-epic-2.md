@@ -30,7 +30,7 @@ This specification translates the narrative in `docs/epics.md` (Stories 2.1–2.
 
 ## System Architecture Alignment
 - **NextAuth + Prisma Adapter:** Reuses `src/lib/auth/config.ts`, extending it with registration, password reset, and RBAC context injection exactly as described under “Authentication & Authorization” in `docs/architecture.md`.
-- **Tenant Isolation:** Leverages `src/middleware.ts`, `src/lib/tenant/context.ts`, and Prisma tenant middleware so every auth/API call is filtered by `tenant_id`, satisfying FR6 and the RLS model in `prisma/schema.prisma`.
+- **Tenant Isolation:** Leverages `src/proxy.ts`, `src/lib/tenant/context.ts`, and Prisma tenant middleware so every auth/API call is filtered by `tenant_id`, satisfying FR6 and the RLS model in `prisma/schema.prisma`.
 - **Security Stack:** Follows the security architecture (TLS 1.3, bcrypt hashing, structured audit logging) and enforces the RBAC + least-privilege requirements from the PRD.
 - **UX Consistency:** Registration, login, and admin UI use shadcn/ui + Trust Navy palette defined in `src/app/globals.css`, keeping parity with the UX specification and Epic 1 component guidelines.
 

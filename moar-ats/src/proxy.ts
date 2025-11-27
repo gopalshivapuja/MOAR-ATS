@@ -4,7 +4,7 @@ import { getToken } from 'next-auth/jwt';
 import { setTenantContext } from '@/lib/tenant/context';
 
 /**
- * Next.js middleware for protected routes and tenant extraction
+ * Next.js proxy handler for protected routes and tenant extraction
  * 
  * Features:
  * - Extracts tenant_id from authenticated user's session
@@ -53,7 +53,7 @@ function logTenantAccess(
   // TODO: In Story 9 (Compliance), this will write to audit_logs table
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public routes

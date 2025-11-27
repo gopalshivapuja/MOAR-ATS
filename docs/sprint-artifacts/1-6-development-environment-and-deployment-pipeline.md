@@ -63,7 +63,7 @@ so that the team can develop, validate, and ship features for MOAR ATS efficient
   `[Source: docs/sprint-artifacts/tech-spec-epic-1.md#Story 1.6]`
 - PRD non-functional requirements (performance, security, compliance) require deterministic dev/test loops and automated deployment pipelines that enforce Prisma migrations.  
   `[Source: docs/prd.md#Non-Functional Requirements]`
-- Architecture guardrails (Next.js 16 structure, Prisma, tenant-aware middleware) must be respected when adding scripts, tests, and API routes.  
+- Architecture guardrails (Next.js 16 structure, Prisma, tenant-aware proxy handler) must be respected when adding scripts, tests, and API routes.  
   `[Source: docs/architecture.md#Project Structure]`
 
 ### Structure Alignment Summary
@@ -152,7 +152,7 @@ so that the team can develop, validate, and ship features for MOAR ATS efficient
 - `moar-ats/__tests__/unit/api/health-route.test.ts`
 - `moar-ats/__tests__/cli/dev-stack.test.ts`
 - `moar-ats/src/app/api/health/route.ts`
-- `moar-ats/src/middleware.ts`
+- `moar-ats/src/proxy.ts`
 - `moar-ats/README.md`
 - `docs/LOCAL-DEVELOPMENT-SETUP.md`
 - `docs/IMPLEMENTATION-PHASE-GUIDE.md`
@@ -234,7 +234,7 @@ Environment management remains compliant with earlier stories (`.env.example` do
 
 ### Summary
 
-The infra stack now includes the Docker helper, onboarding docs, CLI automation, and deployment guardrails exactly as written. AC2’s missing CLI example is covered by `__tests__/cli/dev-stack.test.ts`, and both `npm test` and `npm run test:e2e` passed in this review run (Playwright only surfaced the known Next.js middleware/proxy warnings).
+The infra stack now includes the Docker helper, onboarding docs, CLI automation, and deployment guardrails exactly as written. AC2’s missing CLI example is covered by `__tests__/cli/dev-stack.test.ts`, and both `npm test` and `npm run test:e2e` passed in this review run (Playwright only surfaced the known Next.js proxy deprecation warning, now addressed).
 
 ### Key Findings
 
@@ -263,12 +263,12 @@ The infra stack now includes the Docker helper, onboarding docs, CLI automation,
 ### Test Coverage and Gaps
 
 - `npm test` (Jest 30) – passes 13 suites including the new CLI spec; coverage thresholds enforced via `jest.config.js`.
-- `npm run test:e2e` (Playwright 1.57) – passes the health-check smoke; only Next.js dev warnings about middleware/proxy and allowedDevOrigins were observed.
+- `npm run test:e2e` (Playwright 1.57) – passes the health-check smoke; only the allowedDevOrigins warning remains now that the proxy migration is complete.
 - No remaining Story 1.6 gaps identified.
 
 ### Architectural Alignment
 
-New assets stay within documented boundaries (`scripts/`, `docs/`, `moar-ats/__tests__`, `src/app/api`). Multi-tenant middleware, Prisma adapters, and helper scripts continue to respect layering rules from `docs/architecture.md`.
+New assets stay within documented boundaries (`scripts/`, `docs/`, `moar-ats/__tests__`, `src/app/api`). Multi-tenant proxy logic, Prisma adapters, and helper scripts continue to respect layering rules from `docs/architecture.md`.
 
 ### Security Notes
 
@@ -288,4 +288,4 @@ Environment handling continues to rely on `.env.local` (gitignored) with `.env.e
 
 #### Advisory Notes
 
-- Note: When upgrading Next.js, follow up on the `middleware`→`proxy` migration and configure `allowedDevOrigins` to silence the Playwright warning observed during this run.
+- Note: When upgrading Next.js, keep the `src/proxy.ts` handler aligned with framework expectations and configure `allowedDevOrigins` to silence the remaining Playwright warning observed during this run.

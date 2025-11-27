@@ -51,6 +51,7 @@ export const authConfig = {
             },
           })
         );
+        console.log('[auth] credential lookup', { normalizedEmail, found: !!user });
 
         if (!user) {
           throw new Error('Invalid email or password');
@@ -61,6 +62,7 @@ export const authConfig = {
           credentials.password as string,
           user.passwordHash
         );
+        console.log('[auth] password check', { normalizedEmail, isValidPassword });
 
         if (!isValidPassword) {
           throw new Error('Invalid email or password');

@@ -86,7 +86,7 @@ This epic directly implements the core architecture decisions documented in `doc
 | **Database Module** (`src/lib/db/`) | Database connection, Prisma client, tenant middleware | Database URL, tenant context | Prisma client instance, database queries | Dev Agent |
 | **Prisma Schema** (`prisma/schema.prisma`) | Define database schema, relationships, RLS policies | Schema definitions | Database tables, migrations | Dev Agent |
 | **Authentication Module** (`src/lib/auth/`) | NextAuth.js configuration, session management, password hashing | User credentials, session tokens | Authenticated sessions, user objects | Dev Agent |
-| **Multi-Tenant Middleware** (`src/middleware.ts`, `src/lib/db/rls.ts`) | Extract tenant context, enforce tenant isolation, filter queries | HTTP requests, user session | Tenant context, filtered queries | Dev Agent |
+| **Multi-Tenant Proxy Handler** (`src/proxy.ts`, `src/lib/db/rls.ts`) | Extract tenant context, enforce tenant isolation, filter queries | HTTP requests, user session | Tenant context, filtered queries | Dev Agent |
 | **UI Component Library** (`src/components/ui/`) | Reusable UI components with Trust Navy theme | Component props, theme config | Rendered components | Dev Agent |
 | **Development Tools** | Local dev environment, testing framework, deployment pipeline | Code changes, test files | Running dev server, test results, deployed app | Dev Agent |
 
@@ -269,7 +269,7 @@ export async function withTenant<T>(
 **Next.js Middleware Interface:**
 
 ```typescript
-// src/middleware.ts
+// src/proxy.ts
 export function middleware(request: NextRequest) {
   // Extracts tenant_id from:
   // 1. Authenticated user's session
@@ -323,7 +323,7 @@ export function useTenant(): {
    - **Output:** Working authentication system
 
 4. **Story 1.4: Multi-Tenant Middleware** (Isolation Foundation)
-   - Create `src/middleware.ts` for tenant extraction
+   - Create `src/proxy.ts` for tenant extraction
    - Implement `src/lib/db/rls.ts` for Prisma RLS helpers
    - Configure Prisma client with tenant middleware
    - Set up PostgreSQL RLS policies via migrations
@@ -622,8 +622,8 @@ export function useTenant(): {
 | **AC1.3.1** | NextAuth.js v5 configured | Detailed Design: APIs and Interfaces | src/lib/auth/config.ts, src/app/api/auth/[...nextauth]/route.ts | Verify NextAuth configuration, check bcrypt rounds (minimum 10), verify session timeout |
 | **AC1.3.2** | Authentication flow works | Detailed Design: Workflows | Authentication API routes, login page | E2E test: Register user, login, verify session persists, logout, verify protected route redirect |
 | **AC1.3.3** | Security requirements met | Non-Functional Requirements: Security | Password validation, session config | Test password complexity validation, verify password hashing (never plain text), test CSRF protection |
-| **AC1.4.1** | Tenant isolation enforced | Detailed Design: Workflows | src/middleware.ts, src/lib/db/rls.ts, Prisma middleware | Unit test: Attempt cross-tenant query, verify 403 Forbidden, verify RLS blocks access |
-| **AC1.4.2** | Middleware handles tenant context | Detailed Design: APIs and Interfaces | src/middleware.ts, src/lib/db/prisma.ts | Integration test: Extract tenant_id from session, verify queries filtered, test 403 on wrong tenant |
+| **AC1.4.1** | Tenant isolation enforced | Detailed Design: Workflows | src/proxy.ts, src/lib/db/rls.ts, Prisma middleware | Unit test: Attempt cross-tenant query, verify 403 Forbidden, verify RLS blocks access |
+| **AC1.4.2** | Proxy handler maintains tenant context | Detailed Design: APIs and Interfaces | src/proxy.ts, src/lib/db/prisma.ts | Integration test: Extract tenant_id from session, verify queries filtered, test 403 on wrong tenant |
 | **AC1.4.3** | RLS policies configured | Detailed Design: Data Models | PostgreSQL RLS policies | Database test: Attempt direct SQL query with wrong tenant_id, verify blocked by RLS |
 | **AC1.5.1** | shadcn/ui installed with Trust Navy theme | Detailed Design: Services and Modules | src/components/ui/, tailwind.config.js | Verify shadcn/ui installed, check theme colors in Tailwind config, verify components available |
 | **AC1.5.2** | Components follow UX specifications | Detailed Design: Services and Modules | src/components/ui/ | Visual test: Verify button hierarchy, form input labels, error states, loading states, responsive breakpoints |

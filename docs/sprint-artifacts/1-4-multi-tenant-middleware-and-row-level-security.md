@@ -30,7 +30,7 @@ So that **all data access is automatically filtered by tenant_id and data isolat
   - [x] Reference: [Source: docs/sprint-artifacts/tech-spec-epic-1.md#APIs-and-Interfaces]
 
 - [x] Task 2: Implement Next.js middleware for tenant extraction (AC: 1.4.1, 1.4.2)
-  - [x] Update `src/middleware.ts` to extract tenant_id from authenticated user's session
+  - [x] Update `src/proxy.ts` to extract tenant_id from authenticated user's session
   - [x] Implement tenant extraction priority: session → subdomain → header (X-Tenant-ID)
   - [x] Set tenant context in request headers for downstream API routes
   - [x] Validate tenant_id exists and user has access to that tenant
@@ -113,7 +113,7 @@ So that **all data access is automatically filtered by tenant_id and data isolat
 **From Story 1.3 (Status: done)**
 
 - **New Service Created**: NextAuth.js v5 authentication system at `src/lib/auth/config.ts` - session includes `tenantId` field (`src/lib/auth/config.ts:84,95`)
-- **Architectural Pattern**: Middleware pattern established at `src/middleware.ts` for route protection - can be extended for tenant extraction
+- **Architectural Pattern**: Middleware pattern established at `src/proxy.ts` for route protection - can be extended for tenant extraction
 - **Database Setup**: Prisma client available from Story 1.2, but needs tenant-aware wrapper (to be created in this story)
 - **Session Structure**: User session includes `id`, `email`, `tenantId`, `role` - tenant_id already available in session (`src/lib/auth/config.ts:77-99`)
 - **Testing Framework**: Jest configured with unit and integration test patterns established - follow patterns from `__tests__/unit/auth/` and `__tests__/integration/auth/`
@@ -122,7 +122,7 @@ So that **all data access is automatically filtered by tenant_id and data isolat
 
 **Key Reusable Components:**
 - Use `src/lib/auth/config.ts` session structure (tenantId already included)
-- Extend `src/middleware.ts` for tenant extraction (already handles authentication)
+- Extend `src/proxy.ts` for tenant extraction (already handles authentication)
 - Follow test patterns from Story 1.3 (`__tests__/unit/auth/`, `__tests__/integration/auth/`)
 
 **Technical Debt to Address:**
@@ -167,7 +167,7 @@ So that **all data access is automatically filtered by tenant_id and data isolat
 - `prisma/migrations/[timestamp]_add_rls_policies/migration.sql` - RLS policy migration
 
 **Files to Modify:**
-- `src/middleware.ts` - Add tenant extraction and validation
+- `src/proxy.ts` - Add tenant extraction and validation
 - `src/app/api/**/*.ts` - Update API routes to use tenant context (future stories)
 - `docs/architecture.md` - Document tenant middleware implementation
 
@@ -244,7 +244,7 @@ So that **all data access is automatically filtered by tenant_id and data isolat
 
 **Modified:**
 - `moar-ats/src/lib/db/prisma.ts` - Added Prisma middleware for automatic tenant filtering
-- `moar-ats/src/middleware.ts` - Added tenant extraction and context setting
+- `moar-ats/src/proxy.ts` - Added tenant extraction and context setting
 - `moar-ats/README.md` - Added multi-tenant architecture documentation
 - `docs/architecture.md` - Added detailed tenant middleware implementation documentation
 
@@ -301,8 +301,8 @@ None - Implementation is solid.
 
 | AC# | Description | Status | Evidence |
 |-----|-------------|--------|----------|
-| **AC1.4.1** | Tenant isolation enforced with Next.js middleware, Prisma middleware, RLS policies, tenant context available | **IMPLEMENTED** | Next.js middleware: `src/middleware.ts:56-175` extracts tenant_id from session (lines 79-83), sets context (lines 123, 158). Prisma middleware: `src/lib/db/prisma.ts:64-178` automatically filters all queries by tenant_id. RLS policies: `prisma/migrations/20251127120152_add_rls_policies/migration.sql` enables RLS on all tenant-aware tables. Tenant context: `src/lib/tenant/context.ts` provides context utilities, `src/hooks/useTenant.ts` provides React hook. |
-| **AC1.4.2** | Middleware handles: extracting tenant_id, setting context, validating, returning 403, logging | **IMPLEMENTED** | Tenant extraction: `src/middleware.ts:79-95` extracts from session (priority 1), header (priority 3), subdomain commented for future (priority 2). Context setting: `src/middleware.ts:123, 158` calls `setTenantContext()`. Validation: `src/middleware.ts:108-119` validates tenant_id exists, returns 403 if missing. Logging: `src/middleware.ts:36-54, 100, 109, 135, 144, 150, 170` logs all access attempts with tenant_id, user_id, timestamp. |
+| **AC1.4.1** | Tenant isolation enforced with Next.js middleware, Prisma middleware, RLS policies, tenant context available | **IMPLEMENTED** | Next.js middleware: `src/proxy.ts:56-175` extracts tenant_id from session (lines 79-83), sets context (lines 123, 158). Prisma middleware: `src/lib/db/prisma.ts:64-178` automatically filters all queries by tenant_id. RLS policies: `prisma/migrations/20251127120152_add_rls_policies/migration.sql` enables RLS on all tenant-aware tables. Tenant context: `src/lib/tenant/context.ts` provides context utilities, `src/hooks/useTenant.ts` provides React hook. |
+| **AC1.4.2** | Middleware handles: extracting tenant_id, setting context, validating, returning 403, logging | **IMPLEMENTED** | Tenant extraction: `src/proxy.ts:79-95` extracts from session (priority 1), header (priority 3), subdomain commented for future (priority 2). Context setting: `src/proxy.ts:123, 158` calls `setTenantContext()`. Validation: `src/proxy.ts:108-119` validates tenant_id exists, returns 403 if missing. Logging: `src/proxy.ts:36-54, 100, 109, 135, 144, 150, 170` logs all access attempts with tenant_id, user_id, timestamp. |
 | **AC1.4.3** | RLS policies configured: all tables enabled, check tenant_id, system admin bypass, tested | **IMPLEMENTED** | RLS enabled: `prisma/migrations/20251127120152_add_rls_policies/migration.sql:14, 28, 40, 52` enables RLS on users, job_postings, candidates, applications. Policies check tenant_id: `migration.sql:18-26, 32-38, 44-50, 56-62` policies check `tenant_id = current_setting('app.tenant_id')`. System admin bypass: `migration.sql:22, 35, 48, 60` checks `app.bypass_rls = 'true'`. Tested: Integration tests in `__tests__/integration/tenant/isolation.test.ts` verify tenant isolation. |
 
 **Summary:** 3 of 3 acceptance criteria fully implemented (100% coverage)
@@ -312,11 +312,11 @@ None - Implementation is solid.
 | Task | Marked As | Verified As | Evidence |
 |------|-----------|-------------|----------|
 | **Task 1: Prisma client with tenant middleware** | Complete | **VERIFIED COMPLETE** | `src/lib/db/prisma.ts:64-178` implements Prisma `$extends` with tenant filtering for all operations (findMany, findUnique, create, update, delete, upsert). `withTenant()` helper: `prisma.ts:209-229`. System admin bypass: `prisma.ts:81-84`. Logging: `prisma.ts:35-53, 82, 91, 167, 170`. |
-| **Task 2: Next.js middleware for tenant extraction** | Complete | **VERIFIED COMPLETE** | `src/middleware.ts:56-175` extracts tenant_id from session (lines 79-83), subdomain commented for future (lines 85-89), header for system admin (lines 92-95). Sets context: lines 123, 158. Validates: lines 108-119. Returns 403: lines 110-118. Logs: lines 36-54, 100, 109, 135, 144, 150, 170. Handles unauthenticated: lines 99-105, 141-146. |
+| **Task 2: Next.js middleware for tenant extraction** | Complete | **VERIFIED COMPLETE** | `src/proxy.ts:56-175` extracts tenant_id from session (lines 79-83), subdomain commented for future (lines 85-89), header for system admin (lines 92-95). Sets context: lines 123, 158. Validates: lines 108-119. Returns 403: lines 110-118. Logs: lines 36-54, 100, 109, 135, 144, 150, 170. Handles unauthenticated: lines 99-105, 141-146. |
 | **Task 3: Tenant context utilities** | Complete | **VERIFIED COMPLETE** | `src/lib/tenant/context.ts` provides `getTenantId()` (line 20), `requireTenantId()` (line 94), `setTenantContext()` (line 60), `withTenantContext()` (line 78), `isSystemAdmin()` (line 47). TypeScript types inferred from AsyncLocalStorage. `src/hooks/useTenant.ts` provides React hook with loading/error states (lines 25-68). |
 | **Task 4: PostgreSQL RLS policies** | Complete | **VERIFIED COMPLETE** | Migration created: `prisma/migrations/20251127120152_add_rls_policies/migration.sql`. RLS enabled on users, job_postings, candidates, applications (lines 14, 28, 40, 52). Policies check tenant_id (lines 18-26, 32-38, 44-50, 56-62). System admin bypass (lines 22, 35, 48, 60). Well-documented with comments. Note: interviews/offers/audit_logs tables don't exist yet - correctly handled. |
-| **Task 5: Update API routes to use tenant context** | Complete | **VERIFIED COMPLETE** | Middleware sets tenant context automatically (`src/middleware.ts:123, 158`). All database queries use tenant-scoped Prisma client (Prisma middleware automatically filters). Tenant validation handled by middleware (returns 403 if missing). Register route (`src/app/api/auth/register/route.ts`) correctly doesn't use tenant context (public route, creates users). |
-| **Task 6: Tenant access logging** | Complete | **VERIFIED COMPLETE** | Logging implemented in middleware (`src/middleware.ts:36-54`) and Prisma (`src/lib/db/prisma.ts:35-53`). Logs include: tenant_id, user_id, action (pathname/operation), timestamp, success/failure. Structured JSON format. Log levels: INFO (success), WARN (unauthorized), ERROR (system error). Console logging in dev, TODO for audit_logs table in Story 9. |
+| **Task 5: Update API routes to use tenant context** | Complete | **VERIFIED COMPLETE** | Middleware sets tenant context automatically (`src/proxy.ts:123, 158`). All database queries use tenant-scoped Prisma client (Prisma middleware automatically filters). Tenant validation handled by middleware (returns 403 if missing). Register route (`src/app/api/auth/register/route.ts`) correctly doesn't use tenant context (public route, creates users). |
+| **Task 6: Tenant access logging** | Complete | **VERIFIED COMPLETE** | Logging implemented in middleware (`src/proxy.ts:36-54`) and Prisma (`src/lib/db/prisma.ts:35-53`). Logs include: tenant_id, user_id, action (pathname/operation), timestamp, success/failure. Structured JSON format. Log levels: INFO (success), WARN (unauthorized), ERROR (system error). Console logging in dev, TODO for audit_logs table in Story 9. |
 | **Task 7: Unit tests for tenant isolation** | Complete | **VERIFIED COMPLETE** | `__tests__/unit/tenant/context.test.ts` tests tenant context utilities. `__tests__/unit/tenant/middleware.test.ts` tests middleware tenant extraction, 403 responses, public routes. Tests cover: Prisma middleware filtering, middleware 403 responses, tenant context extraction, tenant validation, audit logging. |
 | **Task 8: Integration tests for tenant middleware** | Complete | **VERIFIED COMPLETE** | `__tests__/integration/tenant/isolation.test.ts` tests complete flow: tenant context → query → verify filtered results. Tests cross-tenant access prevention, system admin bypass, `withTenantContext()` helper, error handling. Comprehensive coverage of tenant isolation scenarios. |
 | **Task 9: Update documentation** | Complete | **VERIFIED COMPLETE** | `moar-ats/README.md` includes multi-tenant architecture section with usage examples for API routes and React components. `docs/architecture.md` includes detailed tenant middleware implementation documentation with all three layers explained. Examples provided for tenant-scoped queries, RLS policy structure documented, audit logging format documented. |
@@ -349,7 +349,7 @@ None - Implementation is solid.
 
 **Tech Spec Compliance:**
 - ✅ Prisma Client Interface with `withTenant()` helper matches spec (`src/lib/db/prisma.ts:209-229`)
-- ✅ Next.js Middleware Interface matches spec (`src/middleware.ts:56-175`)
+- ✅ Next.js Middleware Interface matches spec (`src/proxy.ts:56-175`)
 - ✅ React Hooks Interface matches spec (`src/hooks/useTenant.ts:25-68`)
 - ✅ RLS policies match spec requirements (`prisma/migrations/20251127120152_add_rls_policies/migration.sql`)
 

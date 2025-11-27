@@ -133,7 +133,7 @@ moar-ats/
 │   │   ├── useTenant.ts      # Tenant context hook
 │   │   ├── useAI.ts           # AI interaction hooks
 │   │   └── usePipeline.ts     # Pipeline management hooks
-│   ├── middleware.ts          # Next.js middleware (tenant, auth)
+│   ├── proxy.ts               # Next.js proxy handler (tenant, auth)
 │   └── styles/                # Global styles
 │       └── globals.css        # Tailwind imports
 ├── __tests__/                 # Tests
@@ -156,7 +156,7 @@ moar-ats/
 
 | FR Category | Architecture Location | Implementation |
 |-------------|----------------------|----------------|
-| User Account & Access (FR1-6) | `app/(auth)/`, `lib/auth/`, `middleware.ts` | NextAuth.js, RBAC, tenant middleware |
+| User Account & Access (FR1-6) | `app/(auth)/`, `lib/auth/`, `proxy.ts` | NextAuth.js, RBAC, tenant proxy |
 | Job Management (FR7-12) | `app/(recruiter)/jobs/`, `app/api/jobs/` | REST API, Prisma models, workflow engine |
 | Candidate Management (FR13-18) | `app/(recruiter)/candidates/`, `app/api/candidates/` | REST API, Prisma models, pipeline view |
 | AI-Assisted Resume Processing (FR19-24) | `lib/ai/`, `app/api/ai/` | AI learning system, scoring, ranking |
@@ -164,11 +164,11 @@ moar-ats/
 | Interview Scheduling (FR30-34) | `app/(recruiter)/interviews/`, `lib/integrations/calendar.ts` | Calendar APIs, scheduling logic |
 | Offer Management (FR35-39) | `app/(recruiter)/offers/`, `app/api/offers/` | Approval workflows, offer generation |
 | Compliance & Audit (FR40-45) | `lib/compliance/`, `app/(recruiter)/compliance/` | Audit logging, consent tracking, exports |
-| Multi-Tenancy & Branding (FR46-49) | `middleware.ts`, `lib/db/rls.ts` | RLS, tenant_id, storage isolation |
+| Multi-Tenancy & Branding (FR46-49) | `proxy.ts`, `lib/db/rls.ts` | RLS, tenant_id, storage isolation |
 | Integrations (FR50-55) | `lib/integrations/`, `app/api/integrations/` | Email, calendar, HRIS, webhooks |
 | AI Learning & Adaptation (FR56-60) | `lib/ai/learning/` | Novel pattern - adaptive learning system |
 | Reporting & Analytics (FR61-64) | `app/(recruiter)/dashboard/`, `app/api/analytics/` | Dashboard, analytics API |
-| Data Management (FR65-68) | `lib/db/`, `middleware.ts` | Encryption, auth, rate limiting |
+| Data Management (FR65-68) | `lib/db/`, `proxy.ts` | Encryption, auth, rate limiting |
 
 ## Technology Stack Details
 
@@ -653,7 +653,7 @@ These patterns ensure consistent implementation across all AI agents:
 
 MOAR ATS implements defense-in-depth tenant isolation across three layers:
 
-#### 1. Next.js Middleware Layer (`src/middleware.ts`)
+#### 1. Next.js Proxy Layer (`src/proxy.ts`)
 
 **Tenant Extraction Priority:**
 1. Session (from NextAuth token) - PRIMARY source

@@ -51,7 +51,7 @@
         Authentication and authorization requirements: Password policies (minimum length, complexity), session management (JWT tokens, configurable timeout), API authentication (Bearer tokens via NextAuth.js sessions), rate limiting (5 login attempts per hour per IP). Security requirements: Password hashing (bcrypt), session tokens signed with secret, CSRF protection, secure cookie settings.
       </doc>
       <doc path="docs/architecture.md" title="System Architecture" section="Project Structure">
-        Defines authentication-related file locations: `src/lib/auth/config.ts` (NextAuth configuration), `src/app/api/auth/[...nextauth]/route.ts` (NextAuth API route), `src/app/(auth)/login/page.tsx` (login page), `src/middleware.ts` (protected routes middleware).
+        Defines authentication-related file locations: `src/lib/auth/config.ts` (NextAuth configuration), `src/app/api/auth/[...nextauth]/route.ts` (NextAuth API route), `src/app/(auth)/login/page.tsx` (login page), `src/proxy.ts` (protected routes proxy handler).
       </doc>
       <doc path="docs/architecture.md" title="System Architecture" section="Implementation Patterns">
         Naming conventions: API routes (plural, kebab-case), functions (camelCase). Error handling: Structured error responses, HTTP status codes (400, 401, 403, 404, 500), tenant-aware logging. Logging: Structured JSON logs with tenant tagging.
@@ -101,7 +101,7 @@
     <constraint type="project-structure">NextAuth config location: src/lib/auth/config.ts - matches Architecture Section 3: Project Structure</constraint>
     <constraint type="project-structure">API route location: src/app/api/auth/[...nextauth]/route.ts - NextAuth catch-all route handler</constraint>
     <constraint type="project-structure">Login page location: src/app/(auth)/login/page.tsx - route group for auth pages</constraint>
-    <constraint type="project-structure">Middleware location: src/middleware.ts - Next.js middleware for protected routes</constraint>
+    <constraint type="project-structure">Proxy handler location: src/proxy.ts - Next.js proxy for protected routes</constraint>
     <constraint type="ui">Trust Navy theme colors: primary #1e3a5f, secondary #0d47a1 - apply to login page UI</constraint>
     <constraint type="ui">shadcn/ui components will be available after Story 1.5 - use basic HTML/styling for now</constraint>
     <constraint type="prisma">Prisma 7.0.1 already installed - backward compatible with 5.x API, NextAuth Prisma adapter should work with this version</constraint>
@@ -125,7 +125,7 @@
       <signature>Login page component with email/password form, Trust Navy theme colors, form validation, NextAuth signIn integration, error handling</signature>
       <note>Create this file for login UI. Design form with email and password fields. Apply Trust Navy theme colors (primary #1e3a5f, secondary #0d47a1). Use basic HTML/styling (shadcn/ui available after Story 1.5). Integrate with NextAuth signIn('credentials', { email, password, redirect: false }). Handle errors and display user-friendly messages.</note>
     </interface>
-    <interface name="Protected Routes Middleware" path="moar-ats/src/middleware.ts" kind="Next.js middleware">
+    <interface name="Protected Routes Proxy" path="moar-ats/src/proxy.ts" kind="Next.js proxy">
       <signature>Next.js middleware function - checks session with NextAuth getToken(), protects routes, redirects unauthenticated users to /login</signature>
       <note>Create or update this file for protected routes. Use NextAuth getToken() to check session. Protect routes: /api/* (except /api/auth/*), /(recruiter)/*, /(candidate)/*. Allow public routes: /, /login, /api/auth/*. Redirect unauthenticated users to /login with callbackUrl parameter.</note>
     </interface>
