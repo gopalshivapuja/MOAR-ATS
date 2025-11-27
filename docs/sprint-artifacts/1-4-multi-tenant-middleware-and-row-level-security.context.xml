@@ -1,0 +1,183 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>4</storyId>
+    <title>Multi-Tenant Middleware and Row-Level Security</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-26</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-4-multi-tenant-middleware-and-row-level-security.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to implement tenant-aware middleware and database RLS policies</iWant>
+    <soThat>all data access is automatically filtered by tenant_id and data isolation is enforced</soThat>
+    <tasks>
+      <task id="1" ac="1.4.1,1.4.2">Create Prisma client instance with tenant middleware</task>
+      <task id="2" ac="1.4.1,1.4.2">Implement Next.js middleware for tenant extraction</task>
+      <task id="3" ac="1.4.1">Create tenant context utilities</task>
+      <task id="4" ac="1.4.3">Configure PostgreSQL Row-Level Security policies</task>
+      <task id="5" ac="1.4.1,1.4.2">Update API routes to use tenant context</task>
+      <task id="6" ac="1.4.2">Implement tenant access logging</task>
+      <task id="7" ac="1.4.1,1.4.2,1.4.3">Write unit tests for tenant isolation</task>
+      <task id="8" ac="1.4.1,1.4.2">Write integration tests for tenant middleware</task>
+      <task id="9" ac="1.4.1,1.4.2,1.4.3">Update documentation</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <ac id="1.4.1">Tenant isolation is enforced with Next.js middleware that extracts tenant_id from request (session, subdomain, or header), Prisma middleware that automatically filters queries by tenant_id, database RLS policies that prevent cross-tenant data access, and tenant context available in all API routes and components.</ac>
+    <ac id="1.4.2">Middleware handles: extracting tenant_id from authenticated user's session, setting tenant context for all database queries, validating tenant_id on all API requests, returning 403 Forbidden if user tries to access another tenant's data, logging all tenant access attempts for audit.</ac>
+    <ac id="1.4.3">RLS policies are configured: all tables have RLS enabled, policies check `tenant_id` matches authenticated user's tenant, system admins can bypass RLS (for tenant management), policies are tested to prevent data leaks.</ac>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epics.md" title="Epics" section="Story 1.4: Multi-Tenant Middleware and Row-Level Security">
+        Story definition with acceptance criteria: tenant isolation enforced with Next.js middleware, Prisma middleware, database RLS policies, and tenant context available in all API routes and components.
+      </doc>
+      <doc path="docs/sprint-artifacts/tech-spec-epic-1.md" title="Tech Spec Epic 1" section="Story 1.4: Multi-Tenant Middleware and Row-Level Security">
+        Technical specification with acceptance criteria AC1.4.1, AC1.4.2, AC1.4.3. Includes Prisma Client Interface with withTenant() helper, Next.js Middleware Interface for tenant extraction, and React Hooks Interface for useTenant().
+      </doc>
+      <doc path="docs/sprint-artifacts/tech-spec-epic-1.md" title="Tech Spec Epic 1" section="Row-Level Security (PostgreSQL RLS Policies)">
+        RLS policies check tenant_id matches authenticated user's tenant, allow system admins to bypass RLS, and prevent cross-tenant data access at database level.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture" section="Data Architecture">
+        Multi-tenancy: Every table includes tenant_id column, row-level security (RLS) policies enforce isolation, Prisma middleware automatically filters by tenant_id.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture" section="Multi-Tenant Isolation">
+        Database: Row-level security (RLS) with tenant_id. Storage: Tenant-prefixed buckets/keys. Logs: Tenant-tagged for compliance reviews. API: Middleware validates tenant_id on every request.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture" section="Logging Strategy">
+        Structured JSON logging with tenant tagging. Every log includes: tenant_id, user_id, timestamp, action. Logs stored in tenant-tagged storage for compliance.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture" section="Access Controls">
+        Row-level security enforced at database level (tenant_id-based isolation). Role-based access control enforced at application level. Audit logs capture all permission checks and access attempts.
+      </doc>
+      <doc path="docs/prd.md" title="PRD" section="Multi-Tenancy Architecture">
+        Isolation Strategy: Row-level security with tenant_id on all data tables, plus namespace separation for storage buckets. Data Segregation: Complete isolation — tenants cannot see each other's candidates, jobs, or workflows.
+      </doc>
+      <doc path="docs/sprint-artifacts/1-3-authentication-foundation-with-nextauth-js.md" title="Story 1.3" section="Dev Agent Record">
+        Learnings: NextAuth.js v5 session includes tenantId field. Middleware pattern established for route protection. Session structure includes id, email, tenantId, role. Prisma client needs tenant-aware wrapper.
+      </doc>
+    </docs>
+    <code>
+      <file path="moar-ats/src/lib/db/prisma.ts" kind="service" symbol="db" lines="1-26" reason="Existing Prisma client instance - needs tenant middleware wrapper to automatically filter queries by tenant_id">
+        Current Prisma client uses PrismaPg adapter with connection pool. Needs extension to add tenant middleware that filters all queries.
+      </file>
+      <file path="moar-ats/src/middleware.ts" kind="middleware" symbol="middleware" lines="1-72" reason="Existing Next.js middleware for authentication - needs extension to extract tenant_id from session and validate tenant access">
+        Current middleware protects routes and checks authentication. Needs to extract tenant_id from token.session, set tenant context in headers, and validate tenant access.
+      </file>
+      <file path="moar-ats/src/lib/auth/config.ts" kind="service" symbol="authConfig" lines="1-113" reason="NextAuth configuration - session already includes tenantId field, can be used for tenant extraction">
+        Session structure includes tenantId (line 63, 84, 95). Session callbacks maintain tenantId in JWT token. Can be extracted using getToken() from next-auth/jwt.
+      </file>
+      <file path="moar-ats/src/types/next-auth.d.ts" kind="types" symbol="Session,User,JWT" lines="1-39" reason="TypeScript type definitions for NextAuth - includes tenantId in session, can extend for tenant context types">
+        Session interface includes tenantId: string. JWT interface includes tenantId: string. Can extend for tenant context utilities.
+      </file>
+      <file path="moar-ats/src/app/api/auth/register/route.ts" kind="controller" symbol="POST" lines="1-123" reason="Example API route using Prisma client - needs update to use tenant-scoped queries">
+        Currently uses db.user.findUnique and db.tenant.findUnique. Will need to use tenant-scoped Prisma client wrapper after implementation.
+      </file>
+      <file path="moar-ats/prisma/schema.prisma" kind="schema" symbol="Tenant,User,JobPosting,Candidate,Application" lines="1-93" reason="Prisma schema with multi-tenant models - all tables have tenant_id, RLS policies need to be added via migration">
+        All models include tenantId field with @index([tenantId]). Relationships defined with tenant. RLS policies need to be enabled via PostgreSQL migration.
+      </file>
+      <file path="moar-ats/__tests__/unit/auth/password-validation.test.ts" kind="test" symbol="unit tests" reason="Example unit test pattern - follow for tenant isolation unit tests">
+        Jest unit test structure with describe/it blocks. Can follow pattern for testing Prisma middleware and tenant extraction.
+      </file>
+      <file path="moar-ats/__tests__/integration/auth/registration.test.ts" kind="test" symbol="integration tests" reason="Example integration test pattern - follow for tenant middleware integration tests">
+        Integration test structure with database setup. Can follow pattern for testing complete tenant isolation flow.
+      </file>
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="next" version="16.0.4" />
+        <package name="next-auth" version="^5.0.0-beta.30" />
+        <package name="@prisma/client" version="^7.0.1" />
+        <package name="@auth/prisma-adapter" version="^2.11.1" />
+        <package name="@prisma/adapter-pg" version="^7.0.1" />
+        <package name="pg" version="^8.16.3" />
+        <package name="prisma" version="^7.0.1" />
+        <package name="react" version="19.2.0" />
+        <package name="react-dom" version="19.2.0" />
+        <package name="typescript" version="^5" />
+      </ecosystem>
+      <ecosystem name="test">
+        <package name="jest" version="^30.2.0" />
+        <package name="@jest/globals" version="^30.2.0" />
+        <package name="jest-environment-jsdom" version="^30.2.0" />
+        <package name="ts-jest" version="^29.4.5" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>All database queries must be tenant-scoped (no cross-tenant access)</constraint>
+    <constraint>API routes must validate tenant_id on every request</constraint>
+    <constraint>RLS policies must prevent direct SQL access with wrong tenant_id</constraint>
+    <constraint>System admins can bypass RLS but must be explicitly logged</constraint>
+    <constraint>Prisma middleware pattern: Automatically inject tenant_id filter into all queries</constraint>
+    <constraint>Next.js middleware pattern: Extract tenant from session, validate access, set context</constraint>
+    <constraint>React hook pattern: useTenant() provides tenant context to components</constraint>
+    <constraint>Audit logging pattern: Structured JSON logs with tenant tagging</constraint>
+    <constraint>Testing: Unit tests for Prisma middleware, tenant extraction, RLS policies</constraint>
+    <constraint>Testing: Integration tests for complete tenant isolation flow</constraint>
+    <constraint>Testing: Database tests for RLS policies prevent cross-tenant SQL queries</constraint>
+    <constraint>Follow existing test patterns from Story 1.3: __tests__/unit/auth/ and __tests__/integration/auth/</constraint>
+    <constraint>Reuse NextAuth session structure (tenantId already included in session)</constraint>
+    <constraint>Extend existing middleware.ts for tenant extraction (already handles authentication)</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="Prisma Client with Tenant Middleware" kind="service" signature="export const prisma: PrismaClient with tenant middleware" path="moar-ats/src/lib/db/prisma.ts">
+      Prisma client instance that automatically filters all queries by tenant_id. Should wrap existing PrismaClient and add middleware to inject tenant_id filter.
+    </interface>
+    <interface name="withTenant Helper" kind="function" signature="export async function withTenant&lt;T&gt;(tenantId: string, query: (prisma: PrismaClient) =&gt; Promise&lt;T&gt;): Promise&lt;T&gt;" path="moar-ats/src/lib/db/prisma.ts">
+      Helper function for tenant-scoped queries. Automatically filters all queries by tenant_id within the query callback.
+    </interface>
+    <interface name="Next.js Middleware" kind="middleware" signature="export async function middleware(request: NextRequest): Promise&lt;NextResponse&gt;" path="moar-ats/src/middleware.ts">
+      Extracts tenant_id from authenticated user's session (priority: session → subdomain → header). Sets tenant context in request headers. Validates tenant access. Returns 403 if unauthorized.
+    </interface>
+    <interface name="getTenantId" kind="function" signature="export function getTenantId(request: NextRequest | Request): Promise&lt;string | null&gt;" path="moar-ats/src/lib/tenant/context.ts">
+      Extracts tenant_id from session/request. Returns tenant_id or null if unauthenticated.
+    </interface>
+    <interface name="requireTenant" kind="function" signature="export function requireTenant(request: NextRequest | Request): Promise&lt;string&gt;" path="moar-ats/src/lib/tenant/context.ts">
+      Extracts tenant_id and throws error if missing. Used in API routes for tenant validation.
+    </interface>
+    <interface name="useTenant Hook" kind="react hook" signature="export function useTenant(): { tenantId: string | null; isLoading: boolean; error: Error | null }" path="moar-ats/src/hooks/useTenant.ts">
+      React hook that provides tenant context to components. Reads from NextAuth session and returns tenant_id or null.
+    </interface>
+    <interface name="PostgreSQL RLS Policies" kind="database" signature="CREATE POLICY ... ON table_name FOR ALL USING (tenant_id = current_setting('app.tenant_id')::uuid)" path="prisma/migrations/[timestamp]_add_rls_policies/migration.sql">
+      RLS policies for all tables that check tenant_id matches authenticated user's tenant. System admin bypass policy included.
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing framework: Jest with ts-jest for TypeScript support. Unit tests in __tests__/unit/, integration tests in __tests__/integration/, E2E tests in __tests__/e2e/. Follow patterns established in Story 1.3: use describe/it blocks, mock Prisma client for unit tests, use real database for integration tests. Test coverage should include: Prisma middleware filtering, tenant extraction from session, RLS policy enforcement, cross-tenant access prevention, system admin bypass, audit logging.
+    </standards>
+    <locations>
+      <location>moar-ats/__tests__/unit/tenant/</location>
+      <location>moar-ats/__tests__/integration/tenant/</location>
+      <location>moar-ats/__tests__/e2e/tenant/</location>
+    </locations>
+    <ideas>
+      <test ac="1.4.1">Test Prisma middleware automatically filters findMany queries by tenant_id</test>
+      <test ac="1.4.1">Test Prisma middleware automatically filters findUnique queries by tenant_id</test>
+      <test ac="1.4.1">Test Prisma middleware automatically filters create/update/delete operations by tenant_id</test>
+      <test ac="1.4.1">Test tenant context available in API routes via getTenantId()</test>
+      <test ac="1.4.1">Test useTenant hook returns tenant_id from NextAuth session</test>
+      <test ac="1.4.2">Test middleware extracts tenant_id from authenticated user's session</test>
+      <test ac="1.4.2">Test middleware sets tenant context in request headers for downstream API routes</test>
+      <test ac="1.4.2">Test middleware returns 403 Forbidden if user tries to access another tenant's data</test>
+      <test ac="1.4.2">Test audit logging captures all tenant access attempts with tenant_id, user_id, action, timestamp</test>
+      <test ac="1.4.3">Test RLS policies prevent direct SQL queries with wrong tenant_id</test>
+      <test ac="1.4.3">Test RLS policies allow queries when tenant_id matches authenticated user's tenant</test>
+      <test ac="1.4.3">Test system admin can bypass RLS policies (for tenant management)</test>
+      <test ac="1.4.1,1.4.2">Integration test: Complete flow - login → extract tenant → query database → verify filtered results</test>
+      <test ac="1.4.1,1.4.2">Integration test: Cross-tenant access blocked at middleware level (403 Forbidden)</test>
+      <test ac="1.4.1,1.4.3">Integration test: Cross-tenant access blocked at database level (RLS prevents query)</test>
+      <test ac="1.4.1">Integration test: Tenant context available in React components via useTenant hook</test>
+    </ideas>
+  </tests>
+</story-context>
+

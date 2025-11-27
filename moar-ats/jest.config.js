@@ -8,7 +8,7 @@ const createJestConfig = nextJest({
 // Add any custom config to be passed to Jest
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testEnvironment: 'node', // Default to node, can be overridden per test file
+  testEnvironment: 'jsdom', // Use jsdom for React component testing
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
@@ -21,6 +21,15 @@ const customJestConfig = {
     '!src/**/*.d.ts',
     '!src/**/*.stories.{js,jsx,ts,tsx}',
   ],
+  coverageThreshold: {
+    global: {
+      branches: 0.8,
+      functions: 0.8,
+      lines: 0.8,
+      statements: 0.8,
+    },
+  },
+  testPathIgnorePatterns: ['<rootDir>/__tests__/e2e/'],
   testEnvironmentOptions: {
     // Options for node environment
   },

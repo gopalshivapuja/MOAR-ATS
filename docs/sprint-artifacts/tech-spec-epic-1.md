@@ -18,7 +18,7 @@ The goal is to create a solid, scalable foundation that enables rapid developmen
 ### In-Scope
 
 - **Project Initialization:** Next.js 16.0.4 project setup with TypeScript, Tailwind CSS, ESLint, and source directory organization
-- **Database Foundation:** PostgreSQL 16.x with Prisma 5.x ORM, multi-tenant schema with `tenant_id` on all tables, row-level security policies
+- **Database Foundation:** PostgreSQL 16.x with Prisma 7.x ORM (backward compatible with 5.x stories), multi-tenant schema with `tenant_id` on all tables, row-level security policies
 - **Authentication System:** NextAuth.js v5 (Auth.js) with email/password authentication, session management, password hashing, and protected routes
 - **Multi-Tenant Infrastructure:** Tenant-aware middleware, Prisma middleware for automatic tenant filtering, PostgreSQL RLS policies, tenant context hooks
 - **UI Component Library:** shadcn/ui setup with Trust Navy theme, core components (Button, Input, Card, Modal, Toast, Form), accessibility compliance
@@ -41,8 +41,8 @@ This epic directly implements the core architecture decisions documented in `doc
 **Framework & Stack:**
 - Next.js 16.0.4 with App Router (Section 2: Project Initialization)
 - TypeScript 5.9.3 with strict mode (Section 2: Decision Summary)
-- Tailwind CSS 4.1.17 for styling (Section 2: Decision Summary)
-- PostgreSQL 16.x with Prisma 5.x ORM (Section 2: Decision Summary, Section 3: Data Architecture)
+- Tailwind CSS 4.1.17 (CSS-first configuration via `src/app/globals.css`) for styling (Section 2: Decision Summary)
+- PostgreSQL 16.x with Prisma 7.x ORM (Section 2: Decision Summary, Section 3: Data Architecture)
 
 **Project Structure:**
 - Follows the directory structure defined in Section 3: Project Structure
@@ -70,6 +70,11 @@ This epic directly implements the core architecture decisions documented in `doc
 - All database tables must include `tenant_id` column (Section 3: Data Architecture)
 - All API routes must validate tenant context (Section 4: Security Architecture)
 - All components must follow naming conventions (Section 4: Implementation Patterns)
+
+### Version Update – 2025-11-27
+- **Prisma 7.0.1 Upgrade:** Stories 1.1–1.4 now run on Prisma 7.0.1 to leverage `@prisma/adapter-pg` improvements, interactive transactions, and security patches released after 5.x. The schema, migrations, and generators remain compatible with the 5.x API specified in the original story briefs, but all new development must target 7.x going forward.
+- **Tailwind CSS v4 Workflow:** The design system relies on Tailwind CSS 4.1.17’s CSS-first configuration (`@theme inline` in `src/app/globals.css`). There is no `tailwind.config.js`, so any new components should continue extending the global CSS theme or use CSS Variables—do not reintroduce the legacy config file.
+- **Documentation Impact:** Any reference to “Prisma 5.x” or “tailwind.config.js” in earlier stories should be treated as historical context. Reviewers should expect 7.x + Tailwind v4 semantics in code reviews, playbooks, and onboarding guides.
 
 ## Detailed Design
 
@@ -794,4 +799,8 @@ export function useTenant(): {
 - **CI/CD:** Run all test suites on git push
 - **Pre-deployment:** E2E tests must pass before deployment
 - **Post-deployment:** Health check verification
+
+## Post-Review Follow-ups
+
+- ✅ **Story 1.6 (Development Environment & Deployment Pipeline):** CLI helper now covered via `__tests__/cli/dev-stack.test.ts`, which drives `scripts/dev-stack.sh` using the `DEV_STACK_MOCK` hook (resolved 2025-11-27).
 

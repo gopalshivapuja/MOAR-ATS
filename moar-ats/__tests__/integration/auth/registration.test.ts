@@ -2,7 +2,9 @@
  * @jest-environment node
  */
 import { db } from '@/lib/db/prisma';
+import { clearTenantContext, setTenantContext } from '@/lib/tenant/context';
 import bcrypt from 'bcryptjs';
+import { runAsSystemAdmin } from '../utils/system-admin';
 
 /**
  * Integration tests for user registration flow
@@ -15,34 +17,53 @@ import bcrypt from 'bcryptjs';
 
 describe('User Registration Integration', () => {
   let testTenantId: string;
+  const runAsTestTenant = async <T>(fn: () => Promise<T>) => {
+    if (!testTenantId) {
+      throw new Error('Test tenant not initialized');
+    }
+    setTenantContext(testTenantId, 'registration-test-user', 'SYSTEM_ADMIN');
+    try {
+      return await fn();
+    } finally {
+      clearTenantContext();
+    }
+  };
 
   beforeAll(async () => {
     // Get or create test tenant
-    const tenant = await db.tenant.findUnique({
-      where: { slug: 'moar-advisory' },
-    });
+    const tenant = await runAsSystemAdmin(() =>
+      db.tenant.findUnique({
+        where: { slug: 'moar-advisory' },
+      })
+    );
     if (tenant) {
       testTenantId = tenant.id;
     } else {
-      const newTenant = await db.tenant.create({
-        data: {
-          name: 'MOAR Advisory',
-          slug: 'moar-advisory',
-        },
-      });
+      const newTenant = await runAsSystemAdmin(() =>
+        db.tenant.create({
+          data: {
+            name: 'MOAR Advisory',
+            slug: 'moar-advisory',
+          },
+        })
+      );
       testTenantId = newTenant.id;
     }
   });
 
   afterAll(async () => {
     // Clean up test users
-    await db.user.deleteMany({
-      where: {
-        email: {
-          startsWith: 'test-',
-        },
-      },
-    });
+    if (testTenantId) {
+      await runAsTestTenant(() =>
+        db.user.deleteMany({
+          where: {
+            email: {
+              startsWith: 'test-',
+            },
+          },
+        })
+      );
+    }
   });
 
   it('should create user with hashed password', async () => {
@@ -51,15 +72,17 @@ describe('User Registration Integration', () => {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(testPassword, saltRounds);
 
-    const user = await db.user.create({
-      data: {
-        email: testEmail,
-        name: 'Test User',
-        passwordHash,
-        tenantId: testTenantId,
-        role: 'recruiter',
-      },
-    });
+    const user = await runAsTestTenant(() =>
+      db.user.create({
+        data: {
+          email: testEmail,
+          name: 'Test User',
+          passwordHash,
+          tenantId: testTenantId,
+          role: 'recruiter',
+        },
+      })
+    );
 
     expect(user).toBeDefined();
     expect(user.email).toBe(testEmail);
@@ -74,7 +97,7 @@ describe('User Registration Integration', () => {
     expect(isValid).toBe(true);
 
     // Clean up
-    await db.user.delete({ where: { id: user.id } });
+    await runAsTestTenant(() => db.user.delete({ where: { id: user.id } }));
   });
 
   it('should enforce tenant-scoped email uniqueness', async () => {
@@ -82,31 +105,35 @@ describe('User Registration Integration', () => {
     const passwordHash = await bcrypt.hash('TestPassword123!', 10);
 
     // Create first user
-    const user1 = await db.user.create({
-      data: {
-        email: testEmail,
-        name: 'Test User 1',
-        passwordHash,
-        tenantId: testTenantId,
-        role: 'recruiter',
-      },
-    });
-
-    // Try to create duplicate email in same tenant (should fail)
-    await expect(
+    const user1 = await runAsTestTenant(() =>
       db.user.create({
         data: {
           email: testEmail,
-          name: 'Test User 2',
+          name: 'Test User 1',
           passwordHash,
           tenantId: testTenantId,
           role: 'recruiter',
         },
       })
+    );
+
+    // Try to create duplicate email in same tenant (should fail)
+    await expect(
+      runAsTestTenant(() =>
+        db.user.create({
+          data: {
+            email: testEmail,
+            name: 'Test User 2',
+            passwordHash,
+            tenantId: testTenantId,
+            role: 'recruiter',
+          },
+        })
+      )
     ).rejects.toThrow();
 
     // Clean up
-    await db.user.delete({ where: { id: user1.id } });
+    await runAsTestTenant(() => db.user.delete({ where: { id: user1.id } }));
   });
 
   it('should verify bcrypt hashing uses minimum 10 rounds', async () => {

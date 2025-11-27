@@ -149,6 +149,18 @@ Story 1.1 Context
 
 ---
 
+### ✅ Ready for Story Context Checklist (What Story 1.6 Added)
+
+Before you flip a story to `ready-for-dev`, confirm:
+
+1. **Story file updated** – Acceptance criteria reference real assets (e.g., `/api/health`, Playwright specs).
+2. **Context file exists** – `docs/sprint-artifacts/<story>.context.xml` captures artifacts, constraints, and references.
+3. **Dev onboarding docs patched** – `docs/LOCAL-DEVELOPMENT-SETUP.md` + `README.md` mention any new scripts (`./scripts/dev-stack.sh`), commands (`npm run type-check:watch`, `npm run test:e2e`), or environment variables you introduced.
+4. **Sprint status accurate** – `docs/sprint-artifacts/sprint-status.yaml` still mirrors the story’s lifecycle.
+5. **Smoke test or checklist recorded** – e.g., Story 1.6 logged the Playwright smoke + `/api/health` route so future developers inherit runnable guardrails.
+
+If any checkbox is missing, pause and add the missing information before calling the story “ready.” This prevents Dev Agents from context-switching mid-implementation.
+
 ## Step 4: Develop Story (Write the Code) 💻
 
 **What it is:** Actually writing the code to implement the story

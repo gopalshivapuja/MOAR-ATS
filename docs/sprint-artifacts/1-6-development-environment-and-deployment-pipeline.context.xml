@@ -1,0 +1,156 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>6</storyId>
+    <title>Development Environment and Deployment Pipeline</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-27T07:45:00Z</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-6-development-environment-and-deployment-pipeline.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA><![CDATA[developer]]></asA>
+    <iWant><![CDATA[to set up the development environment, automated testing harness, and baseline deployment pipeline]]></iWant>
+    <soThat><![CDATA[the team can develop, validate, and ship features for MOAR ATS efficiently and safely]]></soThat>
+    <tasks><![CDATA[
+- Task 1 – Provision local dev stack (AC1)
+  - Create `docker-compose.yml` for PostgreSQL + Redis with health checks, seed hooks, and README instructions.
+  - Populate `.env.example`, keep `.env.local` gitignored, and document `npm run dev` / `tsc --watch` expectations.
+  - Extend `LOCAL-DEVELOPMENT-SETUP.md` with Story 1.6 walkthrough plus troubleshooting checklist.
+- Task 2 – Extend automated testing toolchain (AC2)
+  - Verify Jest + Testing Library configs from Story 1.5 still pass; add coverage thresholds and CI-friendly scripts.
+  - Install/configure Playwright (`npx playwright test --ui`) with sample specs under `__tests__/e2e/`.
+  - Document how to run unit vs. e2e suites locally and inside CI runners.
+- Task 3 – Wire deployment & health monitoring (AC3)
+  - Connect repo to Vercel, set required env vars, ensure builds run `prisma migrate deploy` + `npm run lint`.
+  - Implement `src/app/api/health/route.ts` plus lightweight Jest test validating response schema.
+  - Update README + sprint artifacts with deployment + rollback steps and flip sprint status to `drafted`.
+    ]]></tasks>
+  </story>
+
+  <acceptanceCriteria><![CDATA[
+1. Development environment foundation covering Dockerized Postgres/Redis, environment templates, hot reload, and documented guardrails.
+2. Testing framework installation that keeps Jest + Testing Library healthy, introduces Playwright, example specs, and CI-friendly scripts.
+3. Deployment & observability pipeline with Vercel automation, `GET /api/health` endpoint, and sprint tracking updated to `ready-for-dev` once complete.
+  ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epics.md" title="MOAR ATS - Epic Breakdown" section="Story 1.6">
+        <snippet><![CDATA[Then the development environment includes:
+- Local PostgreSQL database (Docker or local install)
+- Redis for background jobs (Docker or local install)
+- Environment variable management (`.env.local`, `.env.example`)
+- Hot reloading for development (`npm run dev`)
+- TypeScript type checking in watch mode
+And testing framework is set up:
+- Jest configured for unit tests
+- React Testing Library for component tests
+- Playwright configured for E2E tests
+- Test scripts in package.json (`npm test`, `npm run test:e2e`)
+- Example test files demonstrating patterns
+And deployment pipeline is configured:
+- Vercel project connected (for MVP deployment)
+- Environment variables configured in Vercel dashboard
+- Automatic deployments on git push to main branch
+- Build script that runs Prisma migrations
+- Health check endpoint for deployment verification]]></snippet>
+      </doc>
+      <doc path="docs/sprint-artifacts/tech-spec-epic-1.md" title="Epic 1 Tech Spec" section="Story 1.6">
+        <snippet><![CDATA[**AC1.6.1:** Development environment includes: local PostgreSQL database (Docker or local install), Redis for background jobs (Docker or local install), environment variable management (`.env.local`, `.env.example`), hot reloading for development (`npm run dev`), TypeScript type checking in watch mode.
+**AC1.6.2:** Testing framework is set up: Jest configured for unit tests, React Testing Library for component tests, Playwright configured for E2E tests, test scripts in package.json (`npm test`, `npm run test:e2e`), example test files demonstrating patterns.
+**AC1.6.3:** Deployment pipeline is configured: Vercel project connected, env vars configured, auto-deploy on git push to main, build script runs Prisma migrations, health check endpoint for deployment verification.]]></snippet>
+      </doc>
+      <doc path="docs/prd.md" title="MOAR ATS PRD" section="Non-Functional Requirements – Performance">
+        <snippet><![CDATA[Core workflows (job posting, candidate search, resume parsing) respond in <2 seconds for 95th percentile, resume parsing completes in <5 seconds for 10MB files, AI scoring completes in <3 seconds, candidate portal loads in <1 second, recruiter dashboard loads in <2 seconds. API endpoints respond in <500ms for reads and <1 second for writes, and database queries are optimized for multi-tenant isolation (tenant_id indexes, query performance monitoring).]]></snippet>
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture" section="Project Structure">
+        <snippet><![CDATA[moar-ats/
+├── .env.local                 # Environment variables (gitignored)
+├── .env.example               # Example env file
+├── package.json
+├── prisma/                    # schema + migrations + seed
+├── src/app/ (auth, recruiter, candidate, api routes)
+├── src/components/ui/         # shadcn/ui base components
+├── src/lib/db/prisma.ts       # Prisma client with tenant middleware
+├── src/lib/tenant/            # RLS helpers
+├── src/hooks/useTenant.ts
+├── src/middleware.ts          # tenant extraction]]></snippet>
+      </doc>
+      <doc path="docs/LOCAL-DEVELOPMENT-SETUP.md" title="Local Development Setup Guide" section="Complete Local Development Setup">
+        <snippet><![CDATA[Create `docker-compose.yml` with postgres:16 and redis:7-alpine services, health checks, and mounted `postgres_data` volume. Start services with `docker-compose up -d`, inspect via `docker-compose ps`, and stop/clean with `docker-compose down` or `down -v`. The guide reiterates that `npm install` populates `moar-ats/node_modules/`, `.env.local` holds secrets, and every dependency stays project-local for reproducible onboarding.]]></snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact path="docker-compose.yml" kind="infrastructure" symbol="compose-services" lines="1-34">
+        <reason><![CDATA[Defines the Postgres 16 + Redis 7 containers, health checks, and persisted volume expected by AC1 to standardize local environments.]]></reason>
+      </artifact>
+      <artifact path="moar-ats/package.json" kind="config" symbol="npm-scripts-and-deps" lines="1-69">
+        <reason><![CDATA[Captures the scripts (`dev`, `test`, `test:e2e`, `db:*`) and dependency set (Next 16, Prisma 7, NextAuth beta, Testing Library, Jest 30) that Story 1.6 must wire into documentation and CI.]]></reason>
+      </artifact>
+      <artifact path="moar-ats/jest.config.js" kind="test-config" symbol="createJestConfig" lines="1-31">
+        <reason><![CDATA[Configures Jest to load Next.js settings, apply `jest.setup.js`, map `@/` aliases, and collect coverage from `src/**`, providing the baseline AC2 expects before adding Playwright.]]></reason>
+      </artifact>
+      <artifact path="moar-ats/src/lib/db/prisma.ts" kind="library" symbol="tenant-middleware" lines="1-232">
+        <reason><![CDATA[Shows how tenant-aware Prisma queries depend on `DATABASE_URL` and environment context—dev tooling must preserve these expectations when seeding, running migrations, or invoking Prisma Studio.]]></reason>
+      </artifact>
+      <artifact path="moar-ats/scripts/open-prisma-studio.sh" kind="script" symbol="open-prisma-studio" lines="1-30">
+        <reason><![CDATA[Documented helper that loads `.env.local`, verifies `DATABASE_URL`, and launches `npx prisma studio`, illustrating how onboarding scripts should treat secrets and shell ergonomics.]]></reason>
+      </artifact>
+      <artifact path="moar-ats/__tests__/unit/ui/button.test.tsx" kind="unit-test" symbol="Button Component suite" lines="1-82">
+        <reason><![CDATA[Existing Jest + Testing Library suite that validates Trust Navy variants, keyboard access, and ARIA labelling—demonstrates the standard Story 1.6 must maintain when extending tests/coverage.]]></reason>
+      </artifact>
+      <artifact path="moar-ats/__tests__/integration/tenant/isolation.test.ts" kind="integration-test" symbol="Tenant Isolation Integration" lines="1-120">
+        <reason><![CDATA[Node-environment integration tests exercising cross-tenant enforcement via Prisma; they rely on seeded data and `setTenantContext`, so future docker/CI scripts must keep Postgres + Redis reachable.]]></reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="next" version="16.0.4" />
+        <package name="react" version="19.2.0" />
+        <package name="next-auth" version="^5.0.0-beta.30" />
+        <package name="prisma" version="^7.0.1" />
+        <package name="@prisma/client" version="^7.0.1" />
+        <package name="pg" version="^8.16.3" />
+        <package name="@auth/prisma-adapter" version="^2.11.1" />
+        <package name="react-hook-form" version="^7.66.1" />
+        <package name="@testing-library/react" version="^16.3.0" />
+        <package name="@testing-library/jest-dom" version="^6.9.1" />
+        <package name="jest" version="^30.2.0" />
+        <package name="@jest/globals" version="^30.2.0" />
+        <package name="tailwindcss" version="^4" />
+        <package name="typescript" version="^5" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint><![CDATA[Maintain tenant-aware DB operations: `moar-ats/src/lib/db/prisma.ts` injects `tenantId` filters, so any dev tooling (migrations, seeds, Prisma Studio) must honor that middleware and never bypass tenant context except for deliberate admin tasks.]]></constraint>
+    <constraint><![CDATA[Follow the architecture project tree in `docs/architecture.md#Project Structure` when adding docker/test/deployment files—new assets belong under `moar-ats/`, `docs/`, or `scripts/` as outlined to keep the repo predictable.]]></constraint>
+    <constraint><![CDATA[Per `docs/prd.md#Performance`, dev setups and CI scripts must retain performance guardrails (fast hot reload, responsive builds) so later stories can hit the <2s / <500ms targets.]]></constraint>
+    <constraint><![CDATA[Tech spec demands ≥80% coverage on foundational modules (see `docs/sprint-artifacts/tech-spec-epic-1.md#Story 1.6`), so additional Jest/Playwright tasks must update coverage thresholds and keep regression tests in the default `npm test`.]]></constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="POST /api/auth/register" kind="REST" path="moar-ats/src/app/api/auth/register/route.ts">
+      <signature><![CDATA[POST /api/auth/register { email: string, password: string, name: string } → 201 Created | 400 Validation | 500 Server]]></signature>
+      <notes><![CDATA[E2E harnesses rely on this route when simulating onboarding; Story 1.6's Playwright scaffolding should hit the same contract once the environment is provisioned.]]></notes>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards><![CDATA[`docs/sprint-artifacts/tech-spec-epic-1.md#Test Strategy Summary` mandates layered coverage: Jest unit + RTL component suites, integration tests hitting Prisma + tenant context, and Playwright (or equivalent) e2e checks with ≥80% coverage on foundational modules.]]></standards>
+    <locations>
+      <location>moar-ats/__tests__/unit/**/*.test.ts?(x)</location>
+      <location>moar-ats/__tests__/integration/**/*.test.ts</location>
+      <location>moar-ats/__tests__/e2e/**/*.test.ts</location>
+    </locations>
+    <ideas>
+      <idea ac="AC1"><![CDATA[Spin up `docker-compose` locally, run `npm run dev`, and verify Prisma connects using `.env.local` secrets plus seed/migrate scripts documented in README.]]></idea>
+      <idea ac="AC2"><![CDATA[Execute `npm test`, `npm run test:e2e`, and measure coverage thresholds (80%+); add a Playwright smoke that walks the register→login placeholder from `__tests__/e2e/auth-flow.test.ts`.]]></idea>
+      <idea ac="AC3"><![CDATA[Deploy to the Vercel preview, invoke `GET /api/health`, and confirm pipeline runs `prisma migrate deploy` plus `npm run lint` without manual steps before flipping sprint status to ready-for-dev.]]></idea>
+    </ideas>
+  </tests>
+</story-context>
+
